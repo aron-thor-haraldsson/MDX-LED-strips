@@ -1,9 +1,11 @@
 #!/usr/bin/env python
-# the following code is more or less copied directly from nick25's pixel project
 
-import colorsys
+# The following code is more or less copied directly from nick25's pixel project
+
+
 import opc
 import rgb255
+import color_names
 """
 hls_to_rgb=(1, 0.5, 1)
 led_colour=[(255/255,0/255,0/255)]*10
@@ -27,6 +29,12 @@ client.put_pixels(led_colour)
 print led_colour
 """
 
+# For testing conversion function from 'rgb255' file
 hls_value = (0.33, 0.5, 1)
+rgb_value = rgb255.hls1_to_rgb255(hls_value)
+print rgb_value
+
+# For testing list of named colors from 'color_names' file
+hls_value = color_names.black()
 rgb_value = rgb255.hls1_to_rgb255(hls_value)
 print rgb_value
