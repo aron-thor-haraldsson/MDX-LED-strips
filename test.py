@@ -3,8 +3,10 @@
 
 import colorsys
 import opc
-
-led_colour=[(255,0,0)]*10
+import rgb255
+"""
+hls_to_rgb=(1, 0.5, 1)
+led_colour=[(255/255,0/255,0/255)]*10
 
 client = opc.Client('localhost:7890')
 print enumerate(led_colour)
@@ -23,3 +25,8 @@ for item in enumerate(led_colour):
 
 client.put_pixels(led_colour)
 print led_colour
+"""
+
+hls_value = (0.33, 0.5, 1)
+rgb_value = rgb255.hls1_to_rgb255(hls_value)
+print rgb_value
