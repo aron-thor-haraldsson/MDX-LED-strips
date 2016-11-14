@@ -42,31 +42,37 @@ def step_color_property(old_value, direction):
 		
 def jump_color_property(value, direction):
     if direction == "up":
-        if old_value < 0.25:
-            new_value = 0.25
-        elif old_value < 0.50:
-            new_value = 0.50
-        elif old_value < 0.75:
-            new_value = 0.75
-        elif old_value < 1.00:
-            new_value = 1.00
-        elif old_value == 1.00:
-            new_value = 1.25
+        if old_value < 0.00:
+            new_value = 0.00
+        elif old_value < jump_increment:
+            new_value = jump_increment
+        elif old_value < jump_increment*2:
+            new_value = jump_increment*2
+        elif old_value < jump_increment*3:
+            new_value = jump_increment*3
+        elif old_value < jump_increment*4:
+            new_value = jump_increment*4
+        elif old_value == jump_increment*5:
+            new_value = jump_increment*5
         else:
             print "Failed during 'jump_color_property' function: invalid input value."
             new_value = old_value
         return new_value
     elif direction == "down":
-        if old_value == 0.00:
-            new_value = -0.25
-        elif old_value < 0.25:
+        if old_value < 0.00:
+            new_value = -jump_increment
+        elif old_value < jump_increment:
             new_value = 0.00
-        elif old_value < 0.50:
-            new_value = 0.25
-        elif old_value < 0.75:
-            new_value = 0.50
-        elif old_value < 1.00:
-            new_value = 0.75
+        elif old_value < jump_increment*2:
+            new_value = jump_increment
+        elif old_value < jump_increment*3:
+            new_value = jump_increment*2
+        elif old_value < jump_increment*4:
+            new_value = jump_increment*3
+        elif old_value < jump_increment*4:
+            new_value = jump_increment*3
+        elif old_value < jump_increment*5:
+            new_value = jump_increment*4
         else:
             print "Failed during 'jump_color_property' function: invalid input value."
             new_value = old_value
