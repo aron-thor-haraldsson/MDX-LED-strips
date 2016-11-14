@@ -40,7 +40,7 @@ def step_color_property(old_value, direction):
         new_value = old_value
     return new_value
 		
-def jump_color_property(value, direction):
+def jump_color_property(old_value, direction):
     if direction == "up":
         if old_value < 0.00:
             new_value = 0.00
