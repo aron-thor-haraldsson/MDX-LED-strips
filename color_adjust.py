@@ -5,6 +5,22 @@ import colorsys
 step_increment = 0.01
 jump_increment = 0.25
 
+def constrain_hls(h, l, s):
+    h = constrain_color_property(h)
+    l = constrain_color_property(l)
+    s = constrain_color_property(s)
+    return h, l, s
+    
+def constrain_color_property(old_value):
+    new_value = old_value
+    if old_value < 0.00:
+        while new_value < 0.00:
+            new_value = new_value+1.00
+    elif old_value > 1.00:
+        while new_value > 1.00:
+            new_value = new_value-1.00
+    return new_value
+
 def hls_adjust(hls_tuple, variable, operation, direction):
     h = hls_tuple[0]
     l = hls_tuple[1]
@@ -17,6 +33,7 @@ def hls_adjust(hls_tuple, variable, operation, direction):
         s = adjust_color_property(s, operation, direction)
     else:
         print "Failed during 'hls_adjust' function: unknown variable.\n"
+    h, l, s = constrain_hls(h, l, s)
     return (h, l, s)
 
 # parameters: the original value, what do do with it and wether the change is positive or negative
@@ -52,28 +69,30 @@ def jump_color_property(old_value, direction):
             new_value = jump_increment*3
         elif old_value < jump_increment*4:
             new_value = jump_increment*4
-        elif old_value == jump_increment*5:
+        elif old_value < jump_increment*5:
             new_value = jump_increment*5
         else:
             print "Failed during 'jump_color_property' function: invalid input value."
             new_value = old_value
+        print new_value
         return new_value
     elif direction == "down":
-        if old_value < 0.00:
+        if old_value <= 0.00:
             new_value = -jump_increment
-        elif old_value < jump_increment:
+        elif old_value <= jump_increment:
             new_value = 0.00
-        elif old_value < jump_increment*2:
+        elif old_value <= jump_increment*2:
             new_value = jump_increment
-        elif old_value < jump_increment*3:
+        elif old_value <= jump_increment*3:
             new_value = jump_increment*2
-        elif old_value < jump_increment*4:
+        elif old_value <= jump_increment*4:
             new_value = jump_increment*3
-        elif old_value < jump_increment*4:
+        elif old_value <= jump_increment*4:
             new_value = jump_increment*3
-        elif old_value < jump_increment*5:
+        elif old_value <= jump_increment*5:
             new_value = jump_increment*4
         else:
             print "Failed during 'jump_color_property' function: invalid input value."
             new_value = old_value
+        print new_value
         return new_value

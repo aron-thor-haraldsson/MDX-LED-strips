@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
-# The following code is more or less copied directly from nick25's pixel project
-
-
+import time
 import opc
 import rgb255
 import color_names
+import color_adjust
+
 """
+# The following code is more or less copied directly from nick25's pixel project
 hls_to_rgb=(1, 0.5, 1)
 led_colour=[(255/255,0/255,0/255)]*10
 
@@ -29,12 +30,33 @@ client.put_pixels(led_colour)
 print led_colour
 """
 
+
+"""
 # For testing conversion function from 'rgb255' file
-hls_value = (0.33, 0.5, 1)
+hls_value = (0.33, 0.5, 1.0)
 rgb_value = rgb255.hls1_to_rgb255(hls_value)
+print "Testing 'rgb255':"
 print rgb_value
+print
+
+time.sleep(1)
 
 # For testing list of named colors from 'color_names' file
-hls_value = color_names.black()
+hls_value = color_names.white()
 rgb_value = rgb255.hls1_to_rgb255(hls_value)
+print "Testing 'color_names':"
 print rgb_value
+print
+"""
+time.sleep(1)
+
+# For testing functions from 'color_adjust' file
+hls_value = (0.0, 0.5, 1.0)
+print "Testing 'color_adjust':"
+print rgb255.hls1_to_rgb255(hls_value)
+print
+for x in range(0, 100):
+    time.sleep(2)
+    hls_value = color_adjust.hls_adjust(hls_value, "h", "jump", "down")
+    print rgb255.hls1_to_rgb255(hls_value)
+    print
