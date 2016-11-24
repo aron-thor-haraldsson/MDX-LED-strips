@@ -5,6 +5,7 @@ import opc
 import rgb255
 import color_names
 import color_adjust
+import led_class as led
 
 """
 # The following code is more or less copied directly from nick25's pixel project
@@ -43,7 +44,7 @@ time.sleep(1)
 
 """
 
-
+"""
 # For testing list of named colors from 'color_names' file
 hls_value = color_names.white()
 rgb_value = rgb255.hls1_to_rgb255(hls_value)
@@ -52,7 +53,7 @@ print rgb_value
 print
 
 time.sleep(1)
-
+"""
 
 """
 
@@ -76,4 +77,18 @@ for item in range(len(led)):
     print led[item]
 print (led)
 """
+leds = [led.Led() for i in range(0,60)]
 
+for i in range (0,60):
+    print i
+    leds[i].set_start_pos(2000, 4000, 3000)
+    leds[i].calc_xyz(i)
+    
+    print leds[i].get_xyz()
+
+"""
+for i in range(0, 59):
+    l(i) = led.Led(i)
+for i in range(0, 59):
+    l(i) = led.get_number(i)
+"""
