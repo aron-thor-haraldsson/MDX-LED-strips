@@ -22,7 +22,12 @@ _rad_per_light = _deg_to_rad(_degree_per_light)
 # one single LED.
 class Led(object):
 
-    
+    # Default instance values in case they will not be set.
+    def __init__(self):
+        self.set_start_pos(self, 0, 0, 0)
+        self.set_xyz(self, 0, 0, 0)
+        self.set_rgb(self, 0, 0, 0)
+        
     # This part of the class has methods
     # that handle the start position of the strip
     # the LED belongs to.
