@@ -41,14 +41,20 @@ print
 
 time.sleep(1)
 
+"""
+
+
 # For testing list of named colors from 'color_names' file
 hls_value = color_names.white()
 rgb_value = rgb255.hls1_to_rgb255(hls_value)
 print "Testing 'color_names':"
 print rgb_value
 print
-"""
+
 time.sleep(1)
+
+
+"""
 
 # For testing functions from 'color_adjust' file
 hls_value = (0.0, 0.5, 1.0)
@@ -60,3 +66,14 @@ for x in range(0, 100):
     hls_value = color_adjust.hls_adjust(hls_value, "h", "jump", "down")
     print rgb255.hls1_to_rgb255(hls_value)
     print
+    
+"""
+"""
+
+led = [2, 1, 1, 1]
+
+for item in range(len(led)):
+    print led[item]
+print (led)
+"""
+
