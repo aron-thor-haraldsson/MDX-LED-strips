@@ -8,7 +8,7 @@ import color_adjust
 import led_class as led
 
 """
-# The following code is more or less copied directly from nick25's pixel project
+# This portion of code is more or less copied directly from nick25's pixel project
 hls_to_rgb=(1, 0.5, 1)
 led_colour=[(255/255,0/255,0/255)]*10
 
@@ -69,6 +69,7 @@ for x in range(0, 100):
     print
     
 """
+
 """
 
 led = [2, 1, 1, 1]
@@ -76,7 +77,9 @@ led = [2, 1, 1, 1]
 for item in range(len(led)):
     print led[item]
 print (led)
+
 """
+
 leds = [led.Led() for i in range(0,60)]
 
 for i in range (0,60):
@@ -85,10 +88,3 @@ for i in range (0,60):
     leds[i].calc_xyz(i)
     
     print leds[i].get_xyz()
-
-"""
-for i in range(0, 59):
-    l(i) = led.Led(i)
-for i in range(0, 59):
-    l(i) = led.get_number(i)
-"""

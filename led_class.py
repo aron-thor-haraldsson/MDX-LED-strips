@@ -13,17 +13,19 @@ _number_of_led_per_strip = 60.0
 _degree_start = 90+5
 _degree_stop = 180-5
 _degree_per_light = (_degree_stop-_degree_start)/_number_of_led_per_strip
-print _degree_per_light, "deg"
 _rad_start = _deg_to_rad(_degree_start)
 _rad_stop = _deg_to_rad(_degree_stop)
 _rad_per_light = _deg_to_rad(_degree_per_light) 
 
 
-
+# This class handles all relevant information regarding
+# one single LED.
 class Led(object):
 
     
-    
+    # This part of the class has methods
+    # that handle the start position of the strip
+    # the LED belongs to.
     def set_start_pos(self, start_x, start_y, start_z):
         self.set_start_x(start_x)
         self.set_start_y(start_y)
@@ -42,12 +44,13 @@ class Led(object):
         self.start_z = start_z
     def get_start_z(self):
         return self.start_z
+
         
+    # This part of the class has methods
+    # setting and getting the x,y,z coordinates of this LED.
+    # For these methods to work properly, the above 'start position'
+    # methods need to be set first.
     def calc_xyz(self, increment):
-        #print increment, _degree_per_light, increment*_degree_per_light+90
-        #print self.get_start_x(), self.get_start_y(), self.get_start_z()
-        print _rad_to_deg(increment*_rad_per_light+_rad_start)
-        #print increment, _rad_per_light, _rad_start
         self.set_x(self.get_start_x() + _circle_radius*math.cos(increment*_rad_per_light+_rad_start))
         self.set_y(self.get_start_y() + _circle_radius*math.sin(increment*_rad_per_light+_rad_start))
         self.set_z(self.get_start_z())
@@ -69,7 +72,10 @@ class Led(object):
         self.z = z
     def get_z(self):
         return self.z
-        
+
+
+    # This part of the class has methods
+    # setting and getting color information for this LED.
     def set_rgb(self, r, g, b):
         self.set_r(r)
         self.set_g(g)
