@@ -80,11 +80,46 @@ print (led)
 
 """
 
-leds = [led.Led() for i in range(0,60)]
+leds = [led.Led() for i in range(0,360)]
 
 for i in range (0,60):
     print i
     leds[i].set_start_pos(2000, 4000, 3000)
-    leds[i].calc_xyz(i)
+    leds[i].calc_xyz(i-0)
+    
+    print leds[i].get_xyz()
+
+for i in range (60,120):
+    print i
+    leds[i].set_start_pos(2000, 4000, 2000)
+    leds[i].calc_xyz(i-60)
+    
+    print leds[i].get_xyz()
+    
+for i in range (120,180):
+    print i
+    leds[i].set_start_pos(2000, 4000, 1000)
+    leds[i].calc_xyz(i-120)
+    
+    print leds[i].get_xyz()
+    
+for i in range (180,240):
+    print i
+    leds[i].set_start_pos(2000, 2000, 3000)
+    leds[i].calc_xyz(i-180)
+    
+    print leds[i].get_xyz()
+ 
+for i in range (240,300):
+    print i
+    leds[i].set_start_pos(2000, 2000, 2000)
+    leds[i].calc_xyz(i-240)
+    
+    print leds[i].get_xyz()
+    
+for i in range (300,360):
+    print i
+    leds[i].set_start_pos(2000, 2000, 1000)
+    leds[i].calc_xyz(i-300)
     
     print leds[i].get_xyz()
