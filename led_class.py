@@ -88,7 +88,29 @@ class Led(object):
     def get_z(self):
         return self.z
 
-
+    # This part of the class has methods
+    # setting and getting HLS values for this LED.
+    def set_hls(self, h, l, s)
+        self.set_h(h)
+        self.set_l(l)
+        self.set_s(s)
+    def get_hls(self, h, l, s)
+        self.get_h(h)
+        self.get_l(l)
+        self.get_s(s)
+    def set_h(self, h)
+        self._h = h
+    def get_h(self, h)
+        return self._h
+    def set_l(self, l)
+        self._l = l
+    def get_l(self, l)
+        return self._l
+    def set_s(self, s)
+        self._s = s
+    def get_s(self, s)
+        return self._s
+        
     # This part of the class has methods
     # setting and getting color information for this LED.
     def set_rgb(self, r, g, b):
