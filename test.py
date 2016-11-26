@@ -81,19 +81,10 @@ print (led)
 """
 
 leds = [led.Led() for i in range(0,360)]
-
-def localize_leds(strip_number, strip_x, strip_y, strip_z):
-    lower_limit = 60*(strip_number-1)
-    upper_limit = 60*(strip_number)
-    for i in range (lower_limit,upper_limit):
-        print i
-        leds[i].set_start_pos(strip_x, strip_y, strip_z)
-        leds[i].calc_xyz(i-lower_limit)
-        print leds[i].get_xyz()
     
-localize_leds(1, 2000, 4000, 1000)
-localize_leds(1, 2000, 4000, 2000)
-localize_leds(1, 2000, 4000, 3000)
-localize_leds(1, 2000, 2000, 1000)
-localize_leds(1, 2000, 2000, 2000)
-localize_leds(1, 2000, 2000, 3000)
+led.localize_leds(leds, 1, 2000, 4000, 1000)
+localize_leds(leds, 2, 2000, 4000, 2000)
+localize_leds(leds, 3, 2000, 4000, 3000)
+localize_leds(leds, 4, 2000, 2000, 1000)
+localize_leds(leds, 5, 2000, 2000, 2000)
+localize_leds(leds, 6, 2000, 2000, 3000)

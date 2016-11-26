@@ -15,8 +15,18 @@ _degree_stop = 180-5
 _degree_per_light = (_degree_stop-_degree_start)/_number_of_led_per_strip
 _rad_start = _deg_to_rad(_degree_start)
 _rad_stop = _deg_to_rad(_degree_stop)
-_rad_per_light = _deg_to_rad(_degree_per_light) 
+_rad_per_light = _deg_to_rad(_degree_per_light)
 
+
+
+def localize_leds(led_array, strip_number, strip_x, strip_y, strip_z):
+    lower_limit = 60*(strip_number-1)
+    upper_limit = 60*(strip_number)
+    for i in range (lower_limit,upper_limit):
+        print i
+        led_array[i].set_start_pos(strip_x, strip_y, strip_z)
+        led_array[i].calc_xyz(i-lower_limit)
+        print led_array[i].get_xyz()
 
 # This class handles all relevant information regarding
 # one single LED.
