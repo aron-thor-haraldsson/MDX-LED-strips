@@ -1,4 +1,5 @@
 import math
+import colorsys
 
 def _deg_to_rad(deg):
     return (2*math.pi*deg)/360.0
@@ -17,8 +18,24 @@ _rad_start = _deg_to_rad(_degree_start)
 _rad_stop = _deg_to_rad(_degree_stop)
 _rad_per_light = _deg_to_rad(_degree_per_light)
 
+"""
+def globalize():
+    global hls1_to_rbg255
+    def hls1_to_rbg255(h1, l1, s1):
+        return rgb1_to_rgb255(hls1_to_rgb1(hls1))
+"""
 
-
+    # This part of the class has methods
+    # converting hls values (0.0 to 1.0 format)
+    # to rgb values (0 to 255).
+    
+def hls1_to_rgb255(hls1):
+    return rgb1_to_rgb255(hls1_to_rgb1(hls1))
+def hls1_to_rgb1(hls1):
+    return colorsys.hls_to_rgb(hls1[0], hls1[1], hls1[2])
+def rgb1_to_rgb255(rgb1):
+    return (int(rgb1[0] * 255), int(rgb1[1] * 255), int(rgb1[2] * 255))
+        
 def localize_leds(led_array, strip_number, strip_x, strip_y, strip_z):
     lower_limit = 60*(strip_number-1)
     upper_limit = 60*(strip_number)
@@ -27,6 +44,11 @@ def localize_leds(led_array, strip_number, strip_x, strip_y, strip_z):
         led_array[i].set_start_pos(strip_x, strip_y, strip_z)
         led_array[i].calc_xyz(i-lower_limit)
         print led_array[i].get_xyz()
+def check_if_number(var):
+    return (var.__class__.__name__ == "float") or (var.__class__.__name__ == "float") or (var.__class__.__name__ == "float")
+    print "checked if number"
+
+
 
 # This class handles all relevant information regarding
 # one single LED.
@@ -34,9 +56,9 @@ class Led(object):
 
     # Default instance values in case they will not be set.
     def __init__(self):
-        self.set_start_pos(0, 0, 0)
-        self.set_xyz(0, 0, 0)
-        self.set_rgb(0, 0, 0)
+        _xyz = (0, 0, 0)
+        _hls = (0, 0, 0)
+        _rgb = (0, 0, 0)
         
     # This part of the class has methods
     # that handle the start position of the strip
@@ -90,44 +112,30 @@ class Led(object):
 
     # This part of the class has methods
     # setting and getting HLS values for this LED.
-    def set_hls(self, h, l, s)
-        self.set_h(h)
-        self.set_l(l)
-        self.set_s(s)
-    def get_hls(self, h, l, s)
-        self.get_h(h)
-        self.get_l(l)
-        self.get_s(s)
-    def set_h(self, h)
-        self._h = h
-    def get_h(self, h)
-        return self._h
-    def set_l(self, l)
-        self._l = l
-    def get_l(self, l)
-        return self._l
-    def set_s(self, s)
-        self._s = s
-    def get_s(self, s)
-        return self._s
+    def set_hls(self, a, b=None, c=None):
+        if a.__class__.__name__ == "tuple" and b == None and c == None:
+            self._hls = (a)
+        elif check_if_number(a) and check_if_number(b) and check_if_number(c):
+            tupl = (a, b, c)
+            self._hls = tupl
+        else:
+            print "hls" + a.__class__.__name__
+        tmp = hls1_to_rgb255(self.get_hls())
+        self.set_rgb(tmp)
+    def get_hls(self):
+        return self._hls
+
         
     # This part of the class has methods
     # setting and getting color information for this LED.
-    def set_rgb(self, r, g, b):
-        self.set_r(r)
-        self.set_g(g)
-        self.set_b(b)
+    def set_rgb(self, a, b = None, c = None):
+
+        if a.__class__.__name__ == "tuple" and b == None and c == None:
+            self._rgb = (a)
+        elif check_if_number(a) and check_if_number(b) and check_if_number(c):
+            tupl = (a, b, c)
+            self._rgb = tupl
+        else:
+            print a.__class__.__name__, b.__class__.__name__, c.__class__.__name__
     def get_rgb(self):
-        return get_r(), get_g(), get_b()
-    def set_r(self, r):
-        self.r = r
-    def get_r():
-        return self.r
-    def set_g(self, g):
-        self.g = g
-    def get_g(self):
-        return self.g
-    def set_b(self, b):
-        self.b = b
-    def get_r(self):
-        return self.b
+        return self._rgb

@@ -32,17 +32,10 @@ print led_colour
 """
 
 
-"""
-# For testing conversion function from 'rgb255' file
-hls_value = (0.33, 0.5, 1.0)
-rgb_value = rgb255.hls1_to_rgb255(hls_value)
-print "Testing 'rgb255':"
-print rgb_value
-print
 
-time.sleep(1)
 
-"""
+
+
 
 """
 # For testing list of named colors from 'color_names' file
@@ -63,7 +56,7 @@ print "Testing 'color_adjust':"
 print rgb255.hls1_to_rgb255(hls_value)
 print
 for x in range(0, 100):
-    time.sleep(2)
+    time.sleep(2)   
     hls_value = color_adjust.hls_adjust(hls_value, "h", "jump", "down")
     print rgb255.hls1_to_rgb255(hls_value)
     print
@@ -80,11 +73,24 @@ print (led)
 
 """
 
+
 leds = [led.Led() for i in range(0,360)]
+#for i in range (len(leds)):
+#    led.globalize()
     
 led.localize_leds(leds, 1, 2000, 4000, 1000)
-localize_leds(leds, 2, 2000, 4000, 2000)
-localize_leds(leds, 3, 2000, 4000, 3000)
-localize_leds(leds, 4, 2000, 2000, 1000)
-localize_leds(leds, 5, 2000, 2000, 2000)
-localize_leds(leds, 6, 2000, 2000, 3000)
+led.localize_leds(leds, 2, 2000, 4000, 2000)
+led.localize_leds(leds, 3, 2000, 4000, 3000)
+led.localize_leds(leds, 4, 2000, 2000, 1000)
+led.localize_leds(leds, 5, 2000, 2000, 2000)
+led.localize_leds(leds, 6, 2000, 2000, 3000)
+print "d"
+leds[1].set_hls(1.0, 0.5, 1.0)
+print leds[1].get_hls()
+print leds[1].get_rgb()
+
+for i in range (len(leds)):
+    leds[i].set_hls(i*0.001, i*0.001, i*0.001)
+for i in range (len(leds)):
+    print leds[i].get_rgb()
+time.sleep(1)
