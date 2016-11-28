@@ -7,32 +7,15 @@ import color_names
 import color_adjust
 import led_class as led
 
-"""
-# This portion of code is more or less copied directly from nick25's pixel project
-hls_to_rgb=(1, 0.5, 1)
-led_colour=[(255/255,0/255,0/255)]*10
-
-client = opc.Client('localhost:7890')
-print enumerate(led_colour)
-for item in enumerate(led_colour):
-    print item
-    if item[0]==1:
-        #need to get values out of tuple
-        r, g, b = item[1]
-        r = 0
-        g = 255
-        b = 255
-        #add create new one
-        new_colour =(r,g,b)
-        led_colour[item[0]]= new_colour
-
-
-client.put_pixels(led_colour)
-print led_colour
-"""
 
 
 
+# Sends the current RGB values of all the LEDs to the fadecandy
+def display_on_fadecandy():
+    disp = []
+    for i in range (len(leds)):
+        disp.append(leds[i].get_rgb())
+        client.put_pixels(disp)
 
 
 
@@ -73,6 +56,8 @@ print (led)
 
 """
 
+#client = opc.Client('localhost:7890')
+client = opc.Client('192.168.2.1:7890')
 
 leds = [led.Led() for i in range(0,360)]
 #for i in range (len(leds)):
@@ -84,13 +69,21 @@ led.localize_leds(leds, 3, 2000, 4000, 3000)
 led.localize_leds(leds, 4, 2000, 2000, 1000)
 led.localize_leds(leds, 5, 2000, 2000, 2000)
 led.localize_leds(leds, 6, 2000, 2000, 3000)
-print "d"
+
 leds[1].set_hls(1.0, 0.5, 1.0)
 print leds[1].get_hls()
 print leds[1].get_rgb()
 
+
+    
+
 for i in range (len(leds)):
-    leds[i].set_hls(i*0.001, i*0.001, i*0.001)
-for i in range (len(leds)):
-    print leds[i].get_rgb()
-time.sleep(1)
+    leds[i].set_hls(1-i*0.001, 1-i*0.001, 1-i*0.001)
+    
+display_on_fadecandy()
+
+
+
+
+
+

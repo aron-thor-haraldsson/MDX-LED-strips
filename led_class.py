@@ -25,9 +25,9 @@ def globalize():
         return rgb1_to_rgb255(hls1_to_rgb1(hls1))
 """
 
-    # This part of the class has methods
-    # converting hls values (0.0 to 1.0 format)
-    # to rgb values (0 to 255).
+# This part of the class has methods
+# converting hls values (0.0 to 1.0 format)
+# to rgb values (0 to 255).
     
 def hls1_to_rgb255(hls1):
     return rgb1_to_rgb255(hls1_to_rgb1(hls1))
@@ -45,8 +45,15 @@ def localize_leds(led_array, strip_number, strip_x, strip_y, strip_z):
         led_array[i].calc_xyz(i-lower_limit)
         print led_array[i].get_xyz()
 def check_if_number(var):
-    return (var.__class__.__name__ == "float") or (var.__class__.__name__ == "float") or (var.__class__.__name__ == "float")
+    return (var.__class__.__name__ == "float") or (var.__class__.__name__ == "int") or (var.__class__.__name__ == "long")
     print "checked if number"
+
+# Sends the current RGB values of all the LEDs to the fadecandy
+def display_on_fadecandy():
+    disp = []
+    for i in range (len(leds)):
+        disp.append(leds[i].get_rgb())
+        client.put_pixels(disp)
 
 
 
