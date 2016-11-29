@@ -47,12 +47,11 @@ def hls1_to_rgb1(hls1):
 def rgb1_to_rgb255(rgb1):
     return (int(rgb1[0] * 255.0), int(rgb1[1] * 255.0), int(rgb1[2] * 255.0))
         
-def localize_leds(led_array, strip_number, strip_x, strip_y, strip_z):
+def localize_leds(led_array, strip_number, strip_xyz):
     lower_limit = 60*(strip_number-1)
     upper_limit = 60*(strip_number)
     for i in range (lower_limit,upper_limit):
-        print i
-        led_array[i].set_start_pos(strip_x, strip_y, strip_z)
+        led_array[i].set_strip_xyz(strip_xyz)
         led_array[i].calc_xyz(i-lower_limit)
 def print_leds_info(led_array):
         for i in range (len(led_array)):
@@ -89,24 +88,10 @@ class Led(object):
     # This part of the class has methods
     # that handle the start position of the strip
     # the LED belongs to.
-    def set_start_pos(self, start_x, start_y, start_z):
-        self.set_start_x(start_x)
-        self.set_start_y(start_y)
-        self.set_start_z(start_z)
-    def get_start_pos():
-        return self.start_pos      
-    def set_start_x(self, start_x):
-        self.start_x = start_x
-    def get_start_x(self):
-        return self.start_x  
-    def set_start_y(self, start_y):
-        self.start_y = start_y
-    def get_start_y(self):
-        return self.start_y
-    def set_start_z(self, start_z):
-        self.start_z = start_z
-    def get_start_z(self):
-        return self.start_z
+    def set_strip_xyz(self, strip_xyz):
+        self._strip_xyz = strip_xyz
+    def get_strip_xyz(self):
+        return self._strip_xyz
 
         
     # This part of the class has methods
@@ -114,27 +99,15 @@ class Led(object):
     # For these methods to work properly, the above 'start position'
     # methods need to be set first.
     def calc_xyz(self, increment):
-        self.set_x(self.get_start_x() + _circle_radius*math.cos(increment*_rad_per_light+_rad_start))
-        self.set_y(self.get_start_y() + _circle_radius*math.sin(increment*_rad_per_light+_rad_start))
-        self.set_z(self.get_start_z())
-    def set_xyz(self, x, y, z):
-        self.set_x(x)
-        self.set_y(y)
-        self.set_z(z)
+        x = self.get_strip_xyz()[0] + _circle_radius*math.cos(increment*_rad_per_light+_rad_start)
+        y = self.get_strip_xyz()[1] + _circle_radius*math.sin(increment*_rad_per_light+_rad_start)
+        z = self.get_strip_xyz()[2]
+        self._xyz = [x, y, z]
+    def set_xyz(self, xyz):
+        self._xyz(xyz)
     def get_xyz(self):
-        return self.get_x(), self.get_y(), self.get_z() 
-    def set_x(self, x):
-        self.x = x
-    def get_x(self):
-        return self.x
-    def set_y(self, y):
-        self.y = y
-    def get_y(self):
-        return self.y
-    def set_z(self, z):
-        self.z = z
-    def get_z(self):
-        return self.z
+        return self._xyz 
+
 
     # This part of the class has methods
     # setting and getting current HLS and RGB values for this LED.

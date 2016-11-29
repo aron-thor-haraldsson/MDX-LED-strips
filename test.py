@@ -60,19 +60,17 @@ leds = [led.Led() for i in range(0,360)]
 #for i in range (len(leds)):
 #    led.globalize()
     
-led.localize_leds(leds, 1, 2000, 4000, 1000)
-led.localize_leds(leds, 2, 2000, 4000, 2000)
-led.localize_leds(leds, 3, 2000, 4000, 3000)
-led.localize_leds(leds, 4, 2000, 2000, 1000)
-led.localize_leds(leds, 5, 2000, 2000, 2000)
-led.localize_leds(leds, 6, 2000, 2000, 3000)
-
-leds[1].set_current_hls([1.0, 0.5, 1.0])
-print leds[1].get_current_hls()
-print leds[1].get_current_rgb()
+led.localize_leds(leds, 1, (2000, 4000, 1000))
+led.localize_leds(leds, 2, (2000, 4000, 2000))
+led.localize_leds(leds, 3, (2000, 4000, 3000))
+led.localize_leds(leds, 4, (2000, 2000, 1000))
+led.localize_leds(leds, 5, (2000, 2000, 2000))
+led.localize_leds(leds, 6, (2000, 2000, 3000))
 
 
-    
+
+
+
 
 for i in range (len(leds)):
     leds[i].set_current_hls([0.5-i*0.001, 1-i*0.001, 1-i*0.001])
