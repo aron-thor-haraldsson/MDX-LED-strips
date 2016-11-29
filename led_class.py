@@ -48,12 +48,7 @@ def check_if_number(var):
     return (var.__class__.__name__ == "float") or (var.__class__.__name__ == "int") or (var.__class__.__name__ == "long")
     print "checked if number"
 
-# Sends the current RGB values of all the LEDs to the fadecandy
-def display_on_fadecandy():
-    disp = []
-    for i in range (len(leds)):
-        disp.append(leds[i].get_rgb())
-        client.put_pixels(disp)
+
 
 
 
@@ -146,3 +141,4 @@ class Led(object):
             print a.__class__.__name__, b.__class__.__name__, c.__class__.__name__
     def get_rgb(self):
         return self._rgb
+  

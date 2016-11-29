@@ -6,6 +6,8 @@ import rgb255
 import color_names
 import color_adjust
 import led_class as led
+import os
+
 
 
 
@@ -56,8 +58,16 @@ print (led)
 
 """
 
-#client = opc.Client('localhost:7890')
-client = opc.Client('192.168.2.1:7890')
+host = 'localhost:7890'
+# host = '192.168.2.1:7890'
+client = opc.Client(host)
+
+
+
+
+if host.startswith('localhost'):
+    os.system('readopcForStrands.exe')
+    time.sleep(1)
 
 leds = [led.Led() for i in range(0,360)]
 #for i in range (len(leds)):
