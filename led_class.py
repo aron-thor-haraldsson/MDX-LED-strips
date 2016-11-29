@@ -34,7 +34,7 @@ def hls1_to_rgb255(hls1):
 def hls1_to_rgb1(hls1):
     return colorsys.hls_to_rgb(hls1[0], hls1[1], hls1[2])
 def rgb1_to_rgb255(rgb1):
-    return (int(rgb1[0] * 255), int(rgb1[1] * 255), int(rgb1[2] * 255))
+    return (int(rgb1[0] * 255.0), int(rgb1[1] * 255.0), int(rgb1[2] * 255.0))
         
 def localize_leds(led_array, strip_number, strip_x, strip_y, strip_z):
     lower_limit = 60*(strip_number-1)
@@ -44,9 +44,6 @@ def localize_leds(led_array, strip_number, strip_x, strip_y, strip_z):
         led_array[i].set_start_pos(strip_x, strip_y, strip_z)
         led_array[i].calc_xyz(i-lower_limit)
         print led_array[i].get_xyz()
-def check_if_number(var):
-    return (var.__class__.__name__ == "float") or (var.__class__.__name__ == "int") or (var.__class__.__name__ == "long")
-    print "checked if number"
 
 
 
@@ -59,8 +56,10 @@ class Led(object):
     # Default instance values in case they will not be set.
     def __init__(self):
         _xyz = (0, 0, 0)
-        _hls = (0, 0, 0)
-        _rgb = (0, 0, 0)
+        _current_hls = (0, 0, 0)
+        _current_rgb = (0, 0, 0)
+        _target_hls = (0, 0, 0)
+        _target_rgb = (0, 0, 0)
         
     # This part of the class has methods
     # that handle the start position of the strip
@@ -113,32 +112,25 @@ class Led(object):
         return self.z
 
     # This part of the class has methods
-    # setting and getting HLS values for this LED.
-    def set_hls(self, a, b=None, c=None):
-        if a.__class__.__name__ == "tuple" and b == None and c == None:
-            self._hls = (a)
-        elif check_if_number(a) and check_if_number(b) and check_if_number(c):
-            tupl = (a, b, c)
-            self._hls = tupl
-        else:
-            print "hls" + a.__class__.__name__
-        tmp = hls1_to_rgb255(self.get_hls())
-        self.set_rgb(tmp)
-    def get_hls(self):
-        return self._hls
+    # setting and getting current HLS and RGB values for this LED.
+    def set_current_hls(self, curr_hls):
+        self._current_hls = curr_hls
+        self.set_current_rgb()
+    def get_current_hls(self):
+        return (self._current_hls)
+    def set_current_rgb(self):
+        self._current_rgb = hls1_to_rgb255(self.get_current_hls())
+    def get_current_rgb(self):
+        return (self._current_rgb)
 
-        
     # This part of the class has methods
-    # setting and getting color information for this LED.
-    def set_rgb(self, a, b = None, c = None):
-
-        if a.__class__.__name__ == "tuple" and b == None and c == None:
-            self._rgb = (a)
-        elif check_if_number(a) and check_if_number(b) and check_if_number(c):
-            tupl = (a, b, c)
-            self._rgb = tupl
-        else:
-            print a.__class__.__name__, b.__class__.__name__, c.__class__.__name__
-    def get_rgb(self):
-        return self._rgb
-  
+    # setting and getting target HLS and RGB values for this LED.
+    def set_target_hls(self, targ_hls):
+        self._target_hls = targ_hls
+        self.set_target_rgb()
+    def get_target_hls(self):
+        return (self._target_hls)
+    def set_target_rgb(self):
+        self._target_rgb = hls1_to_rgb255(self.get_target_hls())
+    def get_target_rgb(self):
+        return (self._target_rgb)
