@@ -42,10 +42,26 @@ if host.startswith('localhost'):
     
 def hls1_to_rgb255(hls1):
     return rgb1_to_rgb255(hls1_to_rgb1(hls1))
+    
 def hls1_to_rgb1(hls1):
     return colorsys.hls_to_rgb(hls1[0], hls1[1], hls1[2])
 def rgb1_to_rgb255(rgb1):
     return (int(rgb1[0] * 255.0), int(rgb1[1] * 255.0), int(rgb1[2] * 255.0))
+    
+def constrain_h(h):
+    if h < 0.0:
+        while h < 0.0:
+            h = h + 1.0
+    elif h > 1.0:
+        while h > 1.0:
+            h = h - 1.0
+    return h
+def constrain_ls(ls):
+    if ls > 1.0:
+        ls = 1.0
+    elif ls < 0.0:
+        ls = 0.0
+    return ls
         
 def localize_leds(led_array, strip_number, strip_xyz):
     lower_limit = 60*(strip_number-1)
@@ -113,7 +129,7 @@ class Led(object):
     # This part of the class has methods
     # setting and getting current HLS and RGB values for this LED.
     def set_current_hls(self, curr_hls):
-        self._current_hls = curr_hls
+        self._current_hls = [constrain_h(curr_hls[0]), constrain_ls(curr_hls[1]), constrain_ls(curr_hls[2])]
         self.set_current_rgb()
     def get_current_hls(self):
         return (self._current_hls)
@@ -125,7 +141,7 @@ class Led(object):
     # This part of the class has methods
     # setting and getting target HLS and RGB values for this LED.
     def set_target_hls(self, targ_hls):
-        self._target_hls = targ_hls
+        self._target_hls = [constrain_h(target_hls[0]), constrain_ls(target_hls[1]), contrain_ls(target_hls[2])]
         self.set_target_rgb()
     def get_target_hls(self):
         return (self._target_hls)
