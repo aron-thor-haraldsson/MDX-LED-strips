@@ -68,16 +68,22 @@ led.localize_leds(leds, 5, (2000, 2000, 2000))
 led.localize_leds(leds, 6, (2000, 2000, 3000))
 
 
-
-
-
-
-for i in range (len(leds)):
-    leds[i].set_current_hls([0.5-i*0.001, 1-i*0.001, 1-i*0.001])
-
-led.print_leds_info(leds)
-    
+leds[1].set_current_hls([1, 0.5, 1])
 led.display_on_fadecandy(leds)
+
+for n in range(100):
+    print n
+    for i in range (len(leds)):
+        leds[i].set_current_hls([1.0 - n*0.01 - i*0.001, 0.5, 1.0])
+        #print [1.0-n*0.01-i*0.001, 1.0-n*0.01-i*0.001, 1-n*0.01-i*0.001]
+    led.display_on_fadecandy(leds)
+    time.sleep(0.1)
+        
+    
+
+#led.print_leds_info(leds)
+
+
 
 
 

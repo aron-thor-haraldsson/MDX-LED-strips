@@ -34,7 +34,7 @@ client = opc.Client(host)
 
 if host.startswith('localhost'):
     os.system('readopcForStrands.exe')
-    time.sleep(1)
+    time.sleep(0.01)
 
 # This part of the class has methods
 # converting hls values (0.0 to 1.0 format)
@@ -68,7 +68,8 @@ def display_on_fadecandy(led_array):
     disp = []
     for i in range (len(led_array)):
         disp.append(led_array[i].get_current_rgb())
-        client.put_pixels(disp)
+    client.put_pixels(disp)
+    time.sleep(0.01)
 
 
 
