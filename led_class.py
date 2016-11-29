@@ -1,5 +1,8 @@
 import math
 import colorsys
+import opc
+import os
+import time
 
 def _deg_to_rad(deg):
     return (2*math.pi*deg)/360.0
@@ -25,6 +28,14 @@ def globalize():
         return rgb1_to_rgb255(hls1_to_rgb1(hls1))
 """
 
+host = 'localhost:7890'
+# host = '192.168.2.1:7890'
+client = opc.Client(host)
+
+if host.startswith('localhost'):
+    os.system('readopcForStrands.exe')
+    time.sleep(1)
+
 # This part of the class has methods
 # converting hls values (0.0 to 1.0 format)
 # to rgb values (0 to 255).
@@ -46,6 +57,12 @@ def localize_leds(led_array, strip_number, strip_x, strip_y, strip_z):
         print led_array[i].get_xyz()
 
 
+# Sends the current RGB values of all the LEDs to the fadecandy
+def display_on_fadecandy(led_array):
+    disp = []
+    for i in range (len(led_array)):
+        disp.append(led_array[i].get_current_rgb())
+        client.put_pixels(disp)
 
 
 

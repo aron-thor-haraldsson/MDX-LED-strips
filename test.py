@@ -12,12 +12,7 @@ import os
 
 
 
-# Sends the current RGB values of all the LEDs to the fadecandy
-def display_on_fadecandy():
-    disp = []
-    for i in range (len(leds)):
-        disp.append(leds[i].get_current_rgb())
-        client.put_pixels(disp)
+
 
 
 
@@ -58,16 +53,7 @@ print (led)
 
 """
 
-host = 'localhost:7890'
-# host = '192.168.2.1:7890'
-client = opc.Client(host)
 
-
-
-
-if host.startswith('localhost'):
-    os.system('readopcForStrands.exe')
-    time.sleep(1)
 
 
 leds = [led.Led() for i in range(0,360)]
@@ -90,8 +76,10 @@ print leds[1].get_current_rgb()
 
 for i in range (len(leds)):
     leds[i].set_current_hls([0.5-i*0.001, 1-i*0.001, 1-i*0.001])
+
+led.print_leds_info(leds)
     
-display_on_fadecandy()
+led.display_on_fadecandy(leds)
 
 
 
