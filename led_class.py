@@ -72,11 +72,12 @@ class Led(object):
 
     # Default instance values in case they will not be set.
     def __init__(self):
-        _xyz = (0, 0, 0)
-        _current_hls = (0, 0, 0)
-        _current_rgb = (0, 0, 0)
-        _target_hls = (0, 0, 0)
-        _target_rgb = (0, 0, 0)
+        self._strip_xyz = (0, 0, 0)
+        self._xyz = (0, 0, 0)
+        self._current_hls = (0, 0, 0)
+        self._current_rgb = (0, 0, 0)
+        self._target_hls = (0, 0, 0)
+        self._target_rgb = (0, 0, 0)
         
     # This part of the class has methods
     # that handle the start position of the strip
