@@ -54,8 +54,15 @@ def localize_leds(led_array, strip_number, strip_x, strip_y, strip_z):
         print i
         led_array[i].set_start_pos(strip_x, strip_y, strip_z)
         led_array[i].calc_xyz(i-lower_limit)
-        print led_array[i].get_xyz()
-
+def print_leds_info(led_array):
+        for i in range (len(led_array)):
+            print "Strip xyz: ", led_array[i].get_strip_xyz()
+            print "Led   xyz: ", led_array[i].get_xyz()
+            print "Curr  hls: ", led_array[i].get_current_hls()
+            print "Curr  rgb: ", led_array[i].get_current_rgb()
+            print "Targ  hls: ", led_array[i].get_target_hls()
+            print "Targ  rgb: ", led_array[i].get_target_rgb()
+            print
 
 # Sends the current RGB values of all the LEDs to the fadecandy
 def display_on_fadecandy(led_array):
