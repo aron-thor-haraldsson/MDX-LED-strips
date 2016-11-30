@@ -81,7 +81,13 @@ def numberfy(var):
         return 0.0
 def numberfys(vars):
     return [numberfy(vars[0]), numberfy(vars[1]), numberfy(vars[2])]
-   
+
+def calc_immediate_steps(old, curr, targ, max_steps, is_h = False):
+    output_array = []
+    for i in range (max_steps):
+        output_array.append(targ)
+    return output_array
+    
 def calc_linear_steps(old, curr, targ, max_steps, is_h = False):
     output_array = []
     diff = targ-curr
@@ -99,6 +105,7 @@ def calc_linear_steps(old, curr, targ, max_steps, is_h = False):
         for i in range (max_steps):
             output_array.append(old + diff*i/float(max_steps))
     return output_array
+    
     
 def calc_cosine_steps(old, curr, targ, max_steps, is_h = False):
     output_array = []
@@ -220,9 +227,12 @@ class Triplets(object):
             vars_shift = [var0_shift, var1_shift, var2_shift]
             self.set_mapped_steps(vars_shift)
         elif step_type == "immediate":
-            var0_shift = calc_linear_steps(old[0], curr[0], targ[0], self.get_max_steps(), True)
-            var1_shift = calc_linear_steps(old[1], curr[1], targ[1], self.get_max_steps())
-            var2_shift = calc_linear_steps(old[2], curr[2], targ[2], self.get_max_steps())
+            var0_shift = calc_immediate_steps(old[0], curr[0], targ[0], self.get_max_steps(), True)
+            var1_shift = calc_immediate_steps(old[1], curr[1], targ[1], self.get_max_steps())
+            var2_shift = calc_immediate_steps(old[2], curr[2], targ[2], self.get_max_steps())
+            vars_shift = [var0_shift, var1_shift, var2_shift]
+            self.set_mapped_steps(vars_shift)
+            self.set_steps_left(2, self.get_steps_left()[1])
             
         print
         print "Mapped steps:"
@@ -246,6 +256,7 @@ class Triplets(object):
                 self.set_steps_left(0, 0)
                 self.set_current(self.get_target())
                 self.set_old = [0, 0, 0]
+                return -1
                 
     def print_variables(self):
         print

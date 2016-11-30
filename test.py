@@ -52,8 +52,7 @@ def update_leds():
 
 
 leds = [led.Led() for i in range(0,360)]
-#for i in range (len(leds)):
-#    led.globalize()
+wall = led.Wall()
     
 led.localize_leds(leds, 1, (2000, 4000, 1000))
 led.localize_leds(leds, 2, (2000, 4000, 2000))
@@ -65,9 +64,9 @@ led.localize_leds(leds, 6, (2000, 2000, 3000))
 leds[1].set_lower_limit(0.0)
 leds[1].set_upper_limit(1.0)
 leds[1].set_current([0.2, 0.2, 0.2])
-leds[1].set_target([1.0, 0.5, 1.0], "linear")
+leds[1].set_target([1.0, 0.5, 1.0], "immediate")
 for n in range (55):
-    leds[1].update()
+    if leds[1].update() == -1: break
     leds[1].print_variables()
     led.display_on_fadecandy(leds)
     time.sleep(0.1)
