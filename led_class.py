@@ -28,13 +28,14 @@ def globalize():
         return rgb1_to_rgb255(hls1_to_rgb1(hls1))
 """
 
+
 host = 'localhost:7890'
-# host = '192.168.2.1:7890'
+#host = '192.168.2.1:7890'
 client = opc.Client(host)
 
 if host.startswith('localhost'):
     os.system('readopcForStrands.exe')
-    time.sleep(0.01)
+    time.sleep(2)
 
 # This part of the class has methods
 # converting hls values (0.0 to 1.0 format)
@@ -85,7 +86,9 @@ def display_on_fadecandy(led_array):
     for i in range (len(led_array)):
         disp.append(led_array[i].get_current_rgb())
     client.put_pixels(disp)
-    time.sleep(0.01)
+    
+
+
 
 
 
@@ -101,6 +104,10 @@ class Led(object):
         self._current_rgb = (0, 0, 0)
         self._target_hls = (0, 0, 0)
         self._target_rgb = (0, 0, 0)
+        self._old_hls = (0, 0, 0)
+        self._fade_steps_left = (0, 0)
+        self._mapped_fade_steps = []
+        self._max_fade_steps = 50
         
     # This part of the class has methods
     # that handle the start position of the strip
@@ -141,11 +148,110 @@ class Led(object):
     # This part of the class has methods
     # setting and getting target HLS and RGB values for this LED.
     def set_target_hls(self, targ_hls):
-        self._target_hls = [constrain_h(target_hls[0]), constrain_ls(target_hls[1]), contrain_ls(target_hls[2])]
+        self._target_hls = [constrain_h(targ_hls[0]), constrain_ls(targ_hls[1]), constrain_ls(targ_hls[2])]
         self.set_target_rgb()
+        if self.new_target_rgb():
+            self._fade_steps_left = (self._max_fade_steps, self._max_fade_steps)
+            self.calc_fade()
     def get_target_hls(self):
         return (self._target_hls)
     def set_target_rgb(self):
         self._target_rgb = hls1_to_rgb255(self.get_target_hls())
     def get_target_rgb(self):
         return (self._target_rgb)
+        
+    def new_target_rgb(self):
+        return self.get_target_rgb() != self.get_current_rgb()
+
+    def calc_fade(self):
+        targ_hls = self.get_target_hls()
+        curr_hls = self.get_current_hls()
+        self._old_hls = curr_hls
+        old_hls = self._old_hls
+        print
+        print "Color before fade calculation:"
+        print "targ_hls: ", targ_hls
+        print "curr_hls: ", curr_hls
+        print "_old_hls: ", self._old_hls
+        print
+        
+        h_shift = self.calc_fade_value(old_hls[0], curr_hls[0], targ_hls[0])
+        l_shift = self.calc_fade_value(old_hls[1], curr_hls[1], targ_hls[1])
+        s_shift = self.calc_fade_value(old_hls[2], curr_hls[2], targ_hls[2])
+        hls_shift = [h_shift, l_shift, s_shift]
+        self._mapped_fade_steps = hls_shift
+        print
+        print "Mapped fade steps:"
+        print self._mapped_fade_steps[0]
+        print self._mapped_fade_steps[1]
+        print self._mapped_fade_steps[2]
+        print
+        
+    def calc_fade_value(self, old, curr, targ):
+        output_array = []
+        diff = targ-curr
+        if diff < 0.0:
+            sign = -1
+        elif diff > 0.0:
+            sign = 1
+        else:
+            sign = 0
+        
+        if sign == 0:
+            for i in range (self._max_fade_steps):
+                output_array.append(targ)
+        else:
+            # While fading, a sine wave is used to describe the speed of color change
+            # where the 'x-axis' represents the time from start to end of change
+            # and the 'y-axis' represents the speed at which it changes.
+            # The integral of this yields a negative cosine wave that describes the distance of color change
+            # where the 'x-axis' represents the time from start to end of change
+            # and the 'y-axis' represents the distance it has changed.
+            # For this purpose, I have used half waves (ranging from 0 to 2*pi).
+            # Using half sine wave ranging from 0 to 2*pi (period of 4*pi) to
+            # describe the velocity at which the color values
+            # change towards targat value.
+            # The integral of a half wave in that range
+            # shows that the amplitude of the wave is
+            # half the distance needed to travel.
+            
+            cos_amplitude = diff/2.0
+            #
+            for i in range (self._max_fade_steps):
+                output_array.append(old + cos_amplitude-cos_amplitude*math.cos(math.pi * i/float(self._max_fade_steps)))
+        return output_array
+                
+    def update_led(self):
+        if self._fade_steps_left[1] > 0:
+            if self._fade_steps_left[0] > 0:
+                print "updating led..."
+                curr_step = self._max_fade_steps-self._fade_steps_left[0]
+                h_next = self._mapped_fade_steps[0][curr_step]
+                l_next = self._mapped_fade_steps[1][curr_step]
+                s_next = self._mapped_fade_steps[2][curr_step]
+                print "update current_hls: ",[h_next, l_next, s_next]
+                self.set_current_hls([h_next, l_next, s_next])
+                self._fade_steps_left = [self._fade_steps_left[0]-1, self._fade_steps_left[1]]
+                
+            elif self._fade_steps_left[0] == 0:
+                self._fade_steps_left = (0, 0)
+                self.set_current_hls(self.get_target_hls())
+                self._old_hls = (0, 0, 0)
+                self._mapped_fade_steps = []
+                
+        
+    def print_led_variables(self):
+        print
+        print
+        print "Printing current led variables:"
+        print "_strip_xyz: ", self._strip_xyz
+        print "_xyz: ", self._xyz
+        print "_current_hls: ", self.get_current_hls()
+        print "_current_rgb: ", self.get_current_rgb()
+        print "_target_hls: ", self.get_target_hls()
+        print "_target_rgb: ", self.get_target_rgb()
+        print "_old_hls: ", self._old_hls
+        print "_fade_steps_left: ", self._fade_steps_left
+        print "_max_fade_steps: ", self._max_fade_steps
+        print
+        print
