@@ -165,17 +165,18 @@ class Triplets(object):
         return self._old
 
     def set_current(self, curr):
-        self._current = [constrain_h(curr[0]), constrain_ls(curr[1]), constrain_ls(curr[2])]
+        self._current = [curr[0], curr[1], curr[2]]
     def get_current(self):
         return self._current
 
     def set_target(self, targ, step_type):
-        self._target = [constrain_h(targ[0]), constrain_ls(targ[1]), constrain_ls(targ[2])]
+        self._target = targ
+        print self.get_target()
         if not self.is_same(self.get_current(), self.get_target()):
             self.set_steps_left(self.get_max_steps(), self.get_max_steps())
             self.calc_steps(step_type)
     def get_target(self):
-        return (self._target)
+        return self._target
     def is_same(self, curr, targ):
         bool0 = abs(targ[0]-curr[0]) < 0.01
         bool1 = abs(targ[1]-curr[1]) < 0.01
@@ -249,6 +250,9 @@ class Triplets(object):
                 var0_next = self.get_mapped_steps()[0][curr_step]
                 var1_next = self.get_mapped_steps()[1][curr_step]
                 var2_next = self.get_mapped_steps()[2][curr_step]
+                print var0_next
+                print var1_next
+                print var2_next
                 self.set_current([var0_next, var1_next, var2_next])
                 self.set_steps_left(self.get_steps_left()[0]-1, self.get_steps_left()[1])
                 
@@ -259,8 +263,6 @@ class Triplets(object):
                 return -1
                 
     def print_variables(self):
-        print
-        print
         print "Printing current variables:"
         print "old: ", self.get_old()
         print "current: ", self.get_current()
@@ -273,10 +275,10 @@ class Triplets(object):
 class Wall(Triplets):
 
     # Default instance values.
-    def __init__(self, x, y, z):
-        x = numberfy(x)
-        y = numberfy(y)
-        z = numberfy(z)
+    def __init__(self, xyz):
+        x = numberfy(xyz[0])
+        y = numberfy(xyz[1])
+        z = numberfy(xyz[2])
         self._lower_limit = 0
         self._upper_limit = 6000
         self._old = [x, y, z]
