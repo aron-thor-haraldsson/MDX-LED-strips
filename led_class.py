@@ -135,7 +135,7 @@ def calc_cosine_steps(old, curr, targ, max_steps, is_h = False):
     return output_array
                    
 
-class Triplets():
+class Triplets(object):
     # Default instance values in case they will not be set.
     def __init__(self):
         self._strip_xyz = (0, 0, 0)
@@ -268,7 +268,7 @@ class Triplets():
         print
         print
 
-class Wall():
+class Wall(object):
 
     # Default instance values.
     def __init__(self, x, y, z):
