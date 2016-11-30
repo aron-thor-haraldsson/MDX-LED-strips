@@ -21,12 +21,6 @@ _rad_start = _deg_to_rad(_degree_start)
 _rad_stop = _deg_to_rad(_degree_stop)
 _rad_per_light = _deg_to_rad(_degree_per_light)
 
-"""
-def globalize():
-    global hls1_to_rbg255
-    def hls1_to_rbg255(h1, l1, s1):
-        return rgb1_to_rgb255(hls1_to_rgb1(hls1))
-"""
 
 
 host = 'localhost:7890'
@@ -39,8 +33,7 @@ if host.startswith('localhost'):
 
 # This part of the class has methods
 # converting hls values (0.0 to 1.0 format)
-# to rgb values (0 to 255).
-    
+# to rgb values (0 to 255).   
 def hls1_to_rgb255(hls1):
     rgb1 = colorsys.hls_to_rgb(hls1[0], hls1[1], hls1[2])
     rgb255 = int(rgb1[0] * 255.0), int(rgb1[1] * 255.0), int(rgb1[2] * 255.0)
@@ -93,9 +86,7 @@ class Led(object):
         self._strip_xyz = (0, 0, 0)
         self._xyz = (0, 0, 0)
         self._current_hls = (0, 0, 0)
-        self._current_rgb = (0, 0, 0)
         self._target_hls = (0, 0, 0)
-        self._target_rgb = (0, 0, 0)
         self._old_hls = (0, 0, 0)
         self._fade_steps_left = (0, 0)
         self._mapped_fade_steps = []
@@ -126,14 +117,14 @@ class Led(object):
 
 
     # This part of the class has methods
-    # setting and getting current HLS and RGB values for this LED.
+    # setting and getting current HLS values for this LED.
     def set_current_hls(self, curr_hls):
         self._current_hls = [constrain_h(curr_hls[0]), constrain_ls(curr_hls[1]), constrain_ls(curr_hls[2])]
     def get_current_hls(self):
         return (self._current_hls)
 
     # This part of the class has methods
-    # setting and getting target HLS and RGB values for this LED.
+    # setting and getting target HLS values for this LED.
     def set_target_hls(self, targ_hls):
         self._target_hls = [constrain_h(targ_hls[0]), constrain_ls(targ_hls[1]), constrain_ls(targ_hls[2])]
         if self.get_target_hls() != self.get_current_hls():

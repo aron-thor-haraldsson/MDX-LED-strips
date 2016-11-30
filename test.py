@@ -70,7 +70,6 @@ led.localize_leds(leds, 4, (2000, 2000, 1000))
 led.localize_leds(leds, 5, (2000, 2000, 2000))
 led.localize_leds(leds, 6, (2000, 2000, 3000))
 
-print "hls convert: " , led.hls1_to_rgb255([0.33, 0.5, 1.0])
 leds[1].set_current_hls([1.0, 0.5, 1])
 leds[1].set_target_hls([0.1, 0.5, 1])
 for n in range (60):
