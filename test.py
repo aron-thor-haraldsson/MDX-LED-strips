@@ -62,10 +62,10 @@ led.localize_leds(leds, 4, (2000, 2000, 1000))
 led.localize_leds(leds, 5, (2000, 2000, 2000))
 led.localize_leds(leds, 6, (2000, 2000, 3000))
 
-leds[1].set_lower_limit([0.0, 0.0, 0.0])
-leds[1].set_upper_limit([1.0, 1.0, 1.0])
+leds[1].set_lower_limit(0.0)
+leds[1].set_upper_limit(1.0)
 leds[1].set_current([0.2, 0.2, 0.2])
-leds[1].set_target([1.0, 0.5, 1.0], "cosine")
+leds[1].set_target([1.0, 0.5, 1.0], "linear")
 for n in range (55):
     leds[1].update()
     leds[1].print_variables()

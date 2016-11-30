@@ -81,13 +81,65 @@ def numberfy(var):
         return 0.0
 def numberfys(vars):
     return [numberfy(vars[0]), numberfy(vars[1]), numberfy(vars[2])]
+   
+def calc_linear_steps(old, curr, targ, max_steps, is_h = False):
+    output_array = []
+    diff = targ-curr
+    if diff < 0.0:
+        sign = -1
+    elif diff > 0.0:
+        sign = 1
+    else:
+        sign = 0
     
+    if sign == 0:
+        for i in range (max_steps):
+            output_array.append(targ)
+    else:
+        for i in range (max_steps):
+            output_array.append(old + diff*i/float(max_steps))
+    return output_array
     
+def calc_cosine_steps(old, curr, targ, max_steps, is_h = False):
+    output_array = []
+    diff = targ-curr
+    if diff < 0.0:
+        sign = -1
+    elif diff > 0.0:
+        sign = 1
+    else:
+        sign = 0
+    
+    if sign == 0:
+        for i in range (max_steps):
+            output_array.append(targ)
+    else:
+        # A sine wave is used to describe the speed of change
+        # where the 'x-axis' represents the time from start to end of change
+        # and the 'y-axis' represents the speed at which it changes.
+        # The integral of this yields a negative cosine wave that describes the distance of change
+        # where the 'x-axis' represents the time from start to end of change
+        # and the 'y-axis' represents the distance.
 
+        # Using half sine wave ranging from 0 to 2*pi (period of 4*pi) to
+        # describe the velocity at which the values
+        # change towards the target value.
+        # The integral of a half wave in that range
+        # shows that the amplitude of the wave is
+        # half the distance needed to travel.
+        
+        cos_amplitude = diff/2.0
+        #
+        for i in range (max_steps):
+            output_array.append(old + cos_amplitude-cos_amplitude*math.cos(math.pi * i/float(max_steps)))
+    return output_array
+                   
 
-class Triplets(object):
-       # Default instance values in case they will not be set.
-    def __init__(self, lower, upper):
+class Triplets():
+    # Default instance values in case they will not be set.
+    def __init__(self):
+        self._strip_xyz = (0, 0, 0)
+        self._xyz = (0, 0, 0)
         self._lower_limit = 0.0
         self._upper_limit = 1.0
         self._old = [0.0, 0.0, 0.0]
@@ -96,19 +148,19 @@ class Triplets(object):
         self._steps_left = [0, 0]
         self._mapped_steps = []
         self._max_steps = 50
+        
+
 
     # This part of the class has methods
     # setting and getting various values for this object.
     def set_lower_limit(self, lower):
         self._lower_limit = lower
     def get_lower_limit(self):
-        return self._lower_limit
-        
-    def set_upper_limit(self, upper):
+        return self._lower_limit      
+    def set_upper(self, upper):
         self._upper_limit = upper
-    def get_upper_limit(self):
+    def get_upper(self):
         return self._upper_limit
-
     def set_old(self, old):
         self._old = old
     def get_old(self):
@@ -165,13 +217,21 @@ class Triplets(object):
         print
         
         if step_type == "cosine":
-            var0_shift = self.calc_cos_steps(old[0], curr[0], targ[0], True)
-            var1_shift = self.calc_cos_steps(old[1], curr[1], targ[1])
-            var2_shift = self.calc_cos_steps(old[2], curr[2], targ[2])
+            var0_shift = calc_cosine_steps(old[0], curr[0], targ[0], self.get_max_steps(), True)
+            var1_shift = calc_cosine_steps(old[1], curr[1], targ[1], self.get_max_steps())
+            var2_shift = calc_cosine_steps(old[2], curr[2], targ[2], self.get_max_steps())
             vars_shift = [var0_shift, var1_shift, var2_shift]
             self.set_mapped_steps(vars_shift)
         elif step_type == "linear":
-            pass
+            var0_shift = calc_linear_steps(old[0], curr[0], targ[0], self.get_max_steps(), True)
+            var1_shift = calc_linear_steps(old[1], curr[1], targ[1], self.get_max_steps())
+            var2_shift = calc_linear_steps(old[2], curr[2], targ[2], self.get_max_steps())
+            vars_shift = [var0_shift, var1_shift, var2_shift]
+            self.set_mapped_steps(vars_shift)
+        elif step_type == "immediate":
+            var0_shift = calc_linear_steps(old[0], curr[0], targ[0], self.get_max_steps(), True)
+            var1_shift = calc_linear_steps(old[1], curr[1], targ[1], self.get_max_steps())
+            var2_shift = calc_linear_steps(old[2], curr[2], targ[2], self.get_max_steps())
             
         print
         print "Mapped steps:"
@@ -179,40 +239,6 @@ class Triplets(object):
         print self.get_mapped_steps()[1]
         print self.get_mapped_steps()[2]
         print
-        
-    def calc_cos_steps(self, old, curr, targ, is_h = False):
-        output_array = []
-        diff = targ-curr
-        if diff < 0.0:
-            sign = -1
-        elif diff > 0.0:
-            sign = 1
-        else:
-            sign = 0
-        
-        if sign == 0:
-            for i in range (self._max_fade_steps):
-                output_array.append(targ)
-        else:
-            # A sine wave is used to describe the speed of change
-            # where the 'x-axis' represents the time from start to end of change
-            # and the 'y-axis' represents the speed at which it changes.
-            # The integral of this yields a negative cosine wave that describes the distance of change
-            # where the 'x-axis' represents the time from start to end of change
-            # and the 'y-axis' represents the distance.
-
-            # Using half sine wave ranging from 0 to 2*pi (period of 4*pi) to
-            # describe the velocity at which the values
-            # change towards the target value.
-            # The integral of a half wave in that range
-            # shows that the amplitude of the wave is
-            # half the distance needed to travel.
-            
-            cos_amplitude = diff/2.0
-            #
-            for i in range (self.get_max_steps()):
-                output_array.append(old + cos_amplitude-cos_amplitude*math.cos(math.pi * i/float(self.get_max_steps())))
-        return output_array
                 
     def update(self):
         if self.get_steps_left()[1] > 0:
@@ -242,6 +268,121 @@ class Triplets(object):
         print
         print
 
+class Wall():
+
+    # Default instance values.
+    def __init__(self, x, y, z):
+        self._lower_limit = 0
+        self._upper_limit = 6000
+        self._old = [x, y, z]
+        self._current = [x, y, z]
+        self._target = [x, y, z]
+        self._steps_left = [0, 0]
+        self._mapped_steps = []
+        self._max_steps = 50
+
+    # This part of the class has methods
+    # setting and getting various values for this object.
+    def set_lower_limit(self, lower):
+        self._lower_limit = lower
+    def get_lower_limit(self):
+        return self._lower_limit
+        
+    def set_upper_limit(self, upper):
+        self._upper_limit = upper
+    def get_upper_limit(self):
+        return self._upper_limit
+
+    def set_old(self, old):
+        self._old = old
+    def get_old(self):
+        return self._old
+
+    def set_current(self, curr):
+        self._current = [constrain_h(curr[0]), constrain_h(curr[1]), constrain_h(curr[2])]
+    def get_current(self):
+        return self._current
+
+    def set_target(self, targ, step_type):
+        self._target = [constrain_h(targ[0]), constrain_h(targ[1]), constrain_h(targ[2])]
+        if not self.is_same(self.get_current(), self.get_target()):
+            self.set_steps_left(self.get_max_steps(), self.get_max_steps())
+            self.calc_steps(step_type)
+    def get_target(self):
+        return (self._target)
+    def is_same(self, curr, targ):
+        bool0 = abs(targ[0]-curr[0]) < 0.01
+        bool1 = abs(targ[1]-curr[1]) < 0.01
+        bool2 = abs(targ[2]-curr[2]) < 0.01
+        return bool0 and bool1 and bool2
+        
+    def set_max_steps(self, max):
+        self._max_steps = max
+    def get_max_steps(self):
+        return self._max_steps
+        
+    def set_steps_left(self, left, total):
+        self._steps_left = [left, total]
+    def get_steps_left(self):
+        return self._steps_left
+        
+    def set_mapped_steps(self, mapped):
+        self.reset_mapped_steps
+        self._mapped_steps = mapped
+    def get_mapped_steps(self):
+        return self._mapped_steps
+    def reset_mapped_steps(self):
+        self._mapped_steps = []
+        
+
+    def calc_steps(self, step_type):
+        targ = self.get_target()
+        curr = self.get_current()
+        old = self.get_old()
+        print
+        print "Values before calculation:"
+        print "old: ", old
+        print "curr: ", curr
+        print "targ: ", targ
+        old = curr
+        print "updated old: ", old
+        print
+        
+        if step_type == "cosine":
+            var0_shift = calc_cosine_steps(old[0], curr[0], targ[0], self.get_max_steps(), True)
+            var1_shift = calc_cosine_steps(old[1], curr[1], targ[1], self.get_max_steps(), True)
+            var2_shift = calc_cosine_steps(old[2], curr[2], targ[2], self.get_max_steps(), True)
+            vars_shift = [var0_shift, var1_shift, var2_shift]
+            self.set_mapped_steps(vars_shift)
+        elif step_type == "linear":
+            pass
+            
+        print
+        print "Mapped steps:"
+        print self.get_mapped_steps()[0]
+        print self.get_mapped_steps()[1]
+        print self.get_mapped_steps()[2]
+        print
+                
+    def update(self):
+        if self.get_steps_left()[1] > 0:
+            if self.get_steps_left()[0] > 1:
+                print "updating..."
+                curr_step = self.get_max_steps()-self.get_steps_left()[0]
+                var0_next = self.get_mapped_steps()[0][curr_step]
+                var1_next = self.get_mapped_steps()[1][curr_step]
+                var2_next = self.get_mapped_steps()[2][curr_step]
+                self.set_current([var0_next, var1_next, var2_next])
+                self.set_steps_left(self.get_steps_left()[0]-1, self.get_steps_left()[1])
+                
+            elif self.get_steps_left()[0] == 1:
+                self.set_steps_left(0, 0)
+                self.set_current(self.get_target())
+                self.set_old = [0, 0, 0]
+                
+    def print_variables(self):
+        pass
+        
     
 # This class handles all relevant information regarding
 # one single LED.
@@ -251,7 +392,8 @@ class Led(object):
     def __init__(self):
         self._strip_xyz = (0, 0, 0)
         self._xyz = (0, 0, 0)
-        self._hls = Triplets(0.0, 1.0)
+        self._hls = Triplets()
+        
         
     # This part of the class has methods
     # that handle the start position of the strip
@@ -275,18 +417,19 @@ class Led(object):
     def get_xyz(self):
         return self._xyz 
 
+
     def set_lower_limit(self, lower):
         self._hls.set_lower_limit(lower)
     def get_lower_limit(self):
         return self._hls.get_lower_limit()
         
     def set_upper_limit(self, upper):
-        self._hls.set_upper_limit(upper)
+        self._hls.set_upper(upper)
     def get_upper_limit(self):
-        return self._hls.get_upper_limit()
+        return self._hls.get_upper()
 
     def set_current(self, curr):
-        self._hls.set_current(curr)
+        self._hls.set_current([constrain_h(curr[0]), constrain_ls(curr[1]), constrain_ls(curr[2])])
     def get_current(self):
         return self._hls.get_current()
 
@@ -299,10 +442,15 @@ class Led(object):
         self._hls.set_max_steps(max)
     def get_max_steps(self):
         return self._hls.get_max_steps()
+        
+    def set_steps_left(self, left, total):
+        self._hls.set_steps_left(left, total)
+    def get_steps_left(self):
+        return self._hls.get_steps_left()
+
+                
     def update(self):
         self._hls.update()
-
- 
-        
+                
     def print_variables(self):
         self._hls.print_variables()
