@@ -251,15 +251,13 @@ class Unlimited_var(Limited_var):
 class Limited_vars(object):
         
     def __init__(self, lower_limit = None, upper_limit = None):
-        self._lower_limits = [numberfy(lower_limit)]*3
-        self._upper_limits = [numberfy(upper_limit)]*3
-        self._limit_ranges = [self._upper_limits[0]-self._lower_limits[0], self._upper_limits[1]-self._lower_limits[1], self._upper_limits[2]-self._lower_limits[2]]
+        self._lower_limit = numberfy(lower_limit)
+        self._upper_limit = numberfy(upper_limit)
+        self._limit_range = self._upper_limit-self._lower_limit
         self._old_values = [numberfy(lower_limit)]*3
-        self._current_values = [numberfy(lower_limit)]*3
-        self._target_values = [numberfy(lower_limit)]*3
-        self._var0 = Limited_var(self._lower_limits[0], self._upper_limits[0])
-        self._var1 = Limited_var(self._lower_limits[1], self._upper_limits[1])
-        self._var2 = Limited_var(self._lower_limits[2], self._upper_limits[2])
+        self._current_value = [numberfy(lower_limit)]*3
+        self._target_value = [numberfy(lower_limit)]*3
+
         self._vars = [self._var0, self._var1, self._var2]
     
     def set_lower_limits(self, lower_limit):
