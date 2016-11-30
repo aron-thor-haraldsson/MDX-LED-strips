@@ -42,20 +42,14 @@ if host.startswith('localhost'):
 # to rgb values (0 to 255).
     
 def hls1_to_rgb255(hls1):
-    return rgb1_to_rgb255(hls1_to_rgb1(hls1))
-    
-def hls1_to_rgb1(hls1):
-    return colorsys.hls_to_rgb(hls1[0], hls1[1], hls1[2])
-def rgb1_to_rgb255(rgb1):
-    return (int(rgb1[0] * 255.0), int(rgb1[1] * 255.0), int(rgb1[2] * 255.0))
+    rgb1 = colorsys.hls_to_rgb(hls1[0], hls1[1], hls1[2])
+    rgb255 = int(rgb1[0] * 255.0), int(rgb1[1] * 255.0), int(rgb1[2] * 255.0)
+    return rgb255
     
 def constrain_h(h):
     if h < 0.0:
         while h < 0.0:
             h = h + 1.0
-    elif h > 1.0:
-        while h > 1.0:
-            h = h - 1.0
     return h
 def constrain_ls(ls):
     if ls > 1.0:
@@ -84,7 +78,7 @@ def print_leds_info(led_array):
 def display_on_fadecandy(led_array):
     disp = []
     for i in range (len(led_array)):
-        disp.append(led_array[i].get_current_rgb())
+        disp.append(hls1_to_rgb255(led_array[i].get_current_hls()))
     client.put_pixels(disp)
     
 
@@ -137,31 +131,19 @@ class Led(object):
     # setting and getting current HLS and RGB values for this LED.
     def set_current_hls(self, curr_hls):
         self._current_hls = [constrain_h(curr_hls[0]), constrain_ls(curr_hls[1]), constrain_ls(curr_hls[2])]
-        self.set_current_rgb()
     def get_current_hls(self):
         return (self._current_hls)
-    def set_current_rgb(self):
-        self._current_rgb = hls1_to_rgb255(self.get_current_hls())
-    def get_current_rgb(self):
-        return (self._current_rgb)
 
     # This part of the class has methods
     # setting and getting target HLS and RGB values for this LED.
     def set_target_hls(self, targ_hls):
         self._target_hls = [constrain_h(targ_hls[0]), constrain_ls(targ_hls[1]), constrain_ls(targ_hls[2])]
-        self.set_target_rgb()
-        if self.new_target_rgb():
+        if self.get_target_hls() != self.get_current_hls():
             self._fade_steps_left = (self._max_fade_steps, self._max_fade_steps)
             self.calc_fade()
     def get_target_hls(self):
         return (self._target_hls)
-    def set_target_rgb(self):
-        self._target_rgb = hls1_to_rgb255(self.get_target_hls())
-    def get_target_rgb(self):
-        return (self._target_rgb)
         
-    def new_target_rgb(self):
-        return self.get_target_rgb() != self.get_current_rgb()
 
     def calc_fade(self):
         targ_hls = self.get_target_hls()
@@ -175,7 +157,7 @@ class Led(object):
         print "_old_hls: ", self._old_hls
         print
         
-        h_shift = self.calc_fade_value(old_hls[0], curr_hls[0], targ_hls[0])
+        h_shift = self.calc_fade_value(old_hls[0], curr_hls[0], targ_hls[0], True)
         l_shift = self.calc_fade_value(old_hls[1], curr_hls[1], targ_hls[1])
         s_shift = self.calc_fade_value(old_hls[2], curr_hls[2], targ_hls[2])
         hls_shift = [h_shift, l_shift, s_shift]
@@ -187,7 +169,7 @@ class Led(object):
         print self._mapped_fade_steps[2]
         print
         
-    def calc_fade_value(self, old, curr, targ):
+    def calc_fade_value(self, old, curr, targ, is_h = False):
         output_array = []
         diff = targ-curr
         if diff < 0.0:
@@ -247,9 +229,7 @@ class Led(object):
         print "_strip_xyz: ", self._strip_xyz
         print "_xyz: ", self._xyz
         print "_current_hls: ", self.get_current_hls()
-        print "_current_rgb: ", self.get_current_rgb()
         print "_target_hls: ", self.get_target_hls()
-        print "_target_rgb: ", self.get_target_rgb()
         print "_old_hls: ", self._old_hls
         print "_fade_steps_left: ", self._fade_steps_left
         print "_max_fade_steps: ", self._max_fade_steps
