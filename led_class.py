@@ -69,7 +69,7 @@ def print_leds_info(led_array):
 def display_on_fadecandy(led_array):
     disp = []
     for i in range (len(led_array)):
-        disp.append(hls1_to_rgb255(led_array[i].get_current_hls()))
+        disp.append(hls1_to_rgb255(led_array[i].get_current()))
     client.put_pixels(disp)
 
 def numberfy(var):
@@ -85,112 +85,102 @@ def numberfys(vars):
     
 
 
-        
-class Limited_var(object):
-    
-    def __init__(self, lower_limit = None, upper_limit = None):
-        self._lower_limit = numberfy(lower_limit)
-        self._upper_limit = numberfy(upper_limit)
-        self._limit_range = self._upper_limit-self._lower_limit
-        self._old_value = numberfy(lower_limit)
-        self._current_value = numberfy(lower_limit)
-        self._target_value = numberfy(lower_limit)
-        self._diff_value = 0.0
-        self._steps_left = (0, 0)
+class Triplets(object):
+       # Default instance values in case they will not be set.
+    def __init__(self, lower, upper):
+        self._lower_limit = 0.0
+        self._upper_limit = 1.0
+        self._old = [0.0, 0.0, 0.0]
+        self._current = [0.0, 0.0, 0.0]
+        self._target = [0.0, 0.0, 0.0]
+        self._steps_left = [0, 0]
         self._mapped_steps = []
         self._max_steps = 50
-        
-    def set_lower_limit(self, lower_limit):
-        self._lower_limit = numberfy(lower_limit)
-        self.set_limit_range()
+
+    # This part of the class has methods
+    # setting and getting various values for this object.
+    def set_lower_limit(self, lower):
+        self._lower_limit = lower
     def get_lower_limit(self):
         return self._lower_limit
-    def set_upper_limit(self, upper_limit):
-        self._upper_limit = numberfy(upper_limit)
-        self.set_limit_range()
+        
+    def set_upper_limit(self, upper):
+        self._upper_limit = upper
     def get_upper_limit(self):
         return self._upper_limit
-    def set_limit_range(self):
-        self._limit_range = self._upper_limit - self._lower_limit
-    def get_limit_range(self):
-        return self._limit_range
 
-    def set_old_value(self, old_value):
-        self._old_value = old_value
-    def get_old_value(self):
-        return self._old_value
+    def set_old(self, old):
+        self._old = old
+    def get_old(self):
+        return self._old
+
+    def set_current(self, curr):
+        self._current = [constrain_h(curr[0]), constrain_ls(curr[1]), constrain_ls(curr[2])]
+    def get_current(self):
+        return self._current
+
+    def set_target(self, targ, step_type):
+        self._target = [constrain_h(targ[0]), constrain_ls(targ[1]), constrain_ls(targ[2])]
+        if not self.is_same(self.get_current(), self.get_target()):
+            self.set_steps_left(self.get_max_steps(), self.get_max_steps())
+            self.calc_steps(step_type)
+    def get_target(self):
+        return (self._target)
+    def is_same(self, curr, targ):
+        bool0 = abs(targ[0]-curr[0]) < 0.01
+        bool1 = abs(targ[1]-curr[1]) < 0.01
+        bool2 = abs(targ[2]-curr[2]) < 0.01
+        return bool0 and bool1 and bool2
         
-    def set_current_value(self, current_value):
-        self._current_value = current_value
-    def get_current_value(self):
-        return self._current_value
-    
-    def set_target_value(self, target_value):
-        target_value = numberfy(target_value)
-        if target_value < self.get_lower_limit():
-            self._target_value = self.get_lower_limit()
-        elif target_value > self.get_upper_limit():
-            self._target_value = self.get_upper_limit()
-        else:
-            self._target_value = target_value
+    def set_max_steps(self, max):
+        self._max_steps = max
+    def get_max_steps(self):
+        return self._max_steps
         
-    def get_target_value(self):
-        return self._target_value
-    def reset_mapped_steps(self):
-        self._mapped_steps = []
-    def set_mapped_steps(self, new_step):
-        self._mapped_steps.append(new_step)
+    def set_steps_left(self, left, total):
+        self._steps_left = [left, total]
+    def get_steps_left(self):
+        return self._steps_left
+        
+    def set_mapped_steps(self, mapped):
+        self.reset_mapped_steps
+        self._mapped_steps = mapped
     def get_mapped_steps(self):
         return self._mapped_steps
-    
-    def set_diff(self):
-        result = self.get_target_value() - self.get_current_value()
+    def reset_mapped_steps(self):
+        self._mapped_steps = []
         
-        if -0.01 < result and result < 0.01:
-            self._diff_value = 0
-            return 0
-        else:
-            self._diff_value = abs(self.get_target_value() - self.get_current_value())
-            if result < 0:
-                return -1
-            else:
-                return 1
-    def get_diff(self):
-        return self._diff_value
-     
-    def print_attributes(self):
-        print "lower limit: ", self.get_lower_limit()
-        print "upper limit: ", self.get_upper_limit()
-        print "limit range: ", self.get_limit_range()
-        print "old value: ", self.get_old_value()
-        print "current value: ", self.get_current_value()
-        print "target value: ", self.get_target_value()
-        print
-    
-    def calc(self, calc_type):
-        targ = self.get_target_value()
-        curr = self.get_current_value()
-        self.set_old_value(curr)
-        old = self.get_old_value()
-        print
-        print "Value before map calculation:"
-        print "targ: ", targ
-        print "curr: ", curr
-        print "old: ", old
-        print
-        
-        self.reset_mapped_steps()
-        if calc_type == "cosine":
-            self.set_mapped_steps(self.calc_cos_steps(old, curr, targ))
-        elif calc_type == "linear":
-            self.set_mapped_steps(self.calc_linear_steps(old, curr, targ))
 
+    def calc_steps(self, step_type):
+        targ = self.get_target()
+        curr = self.get_current()
+        old = self.get_old()
+        print
+        print "Values before calculation:"
+        print "old: ", old
+        print "curr: ", curr
+        print "targ: ", targ
+        old = curr
+        print "updated old: ", old
+        print
+        
+        if step_type == "cosine":
+            var0_shift = self.calc_cos_steps(old[0], curr[0], targ[0], True)
+            var1_shift = self.calc_cos_steps(old[1], curr[1], targ[1])
+            var2_shift = self.calc_cos_steps(old[2], curr[2], targ[2])
+            vars_shift = [var0_shift, var1_shift, var2_shift]
+            self.set_mapped_steps(vars_shift)
+        elif step_type == "linear":
+            pass
+            
         print
         print "Mapped steps:"
-        print self.get_mapped_steps()
+        print self.get_mapped_steps()[0]
+        print self.get_mapped_steps()[1]
+        print self.get_mapped_steps()[2]
         print
         
-    def calc_cos_steps(self, old, curr, targ):
+    def calc_cos_steps(self, old, curr, targ, is_h = False):
         output_array = []
         diff = targ-curr
         if diff < 0.0:
@@ -204,13 +194,13 @@ class Limited_var(object):
             for i in range (self._max_fade_steps):
                 output_array.append(targ)
         else:
-            # While fading, a sine wave is used to describe the speed of change
+            # A sine wave is used to describe the speed of change
             # where the 'x-axis' represents the time from start to end of change
             # and the 'y-axis' represents the speed at which it changes.
             # The integral of this yields a negative cosine wave that describes the distance of change
             # where the 'x-axis' represents the time from start to end of change
-            # and the 'y-axis' represents the distance it has changed.
-            # 
+            # and the 'y-axis' represents the distance.
+
             # Using half sine wave ranging from 0 to 2*pi (period of 4*pi) to
             # describe the velocity at which the values
             # change towards the target value.
@@ -220,73 +210,37 @@ class Limited_var(object):
             
             cos_amplitude = diff/2.0
             #
-            for i in range (self._max_steps):
-                output_array.append(old + cos_amplitude-cos_amplitude*math.cos(math.pi * i/float(self._max_steps)))
+            for i in range (self.get_max_steps()):
+                output_array.append(old + cos_amplitude-cos_amplitude*math.cos(math.pi * i/float(self.get_max_steps())))
         return output_array
-  
-  
-class Unlimited_var(Limited_var):
-    
-    def set_target_value(self, target_value):
-        self._target_value = numberfy(target_value)
-    
-    def tidy_one(self, changing):
-        changed = changing
-        if changed < self.get_lower_limit():
-            while changed < self.get_lower_limit():
-                changed = changed + self.get_limit_range()
-        elif changed > self.get_upper_limit():
-            while changed > self.get_upper_limit():
-                print "before: ", changed
-                changed = changed - self.get_limit_range()
-                print "after: ", changed
-        return changed
-        
-    def tidy(self):
-        self.set_old_value(self.tidy_one(self.get_old_value()))
-        self.set_current_value(self.tidy_one(self.get_current_value()))
-        self.set_target_value(self.tidy_one(self.get_target_value()))
-    
-     
-class Limited_vars(object):
-        
-    def __init__(self, lower_limit = None, upper_limit = None):
-        self._lower_limit = numberfy(lower_limit)
-        self._upper_limit = numberfy(upper_limit)
-        self._limit_range = self._upper_limit-self._lower_limit
-        self._old_values = [numberfy(lower_limit)]*3
-        self._current_value = [numberfy(lower_limit)]*3
-        self._target_value = [numberfy(lower_limit)]*3
-
-        self._vars = [self._var0, self._var1, self._var2]
-    
-    def set_lower_limits(self, lower_limit):
-        self._lower_limits = numberfys(lower_limit)
-        print self.get_lower_limits()[0]
-        self._var0.set_lower_limit(self.get_lower_limits()[0])
-        self._var1.set_lower_limit(self.get_lower_limits()[1])
-        self._var2.set_lower_limit(self.get_lower_limits()[2])
-        self.set_limit_ranges()
-    def get_lower_limits(self):
-        return self._lower_limits
-    def set_upper_limits(self, upper_limit):
-        self._upper_limit = numberfys(upper_limit)
-        self._var0.set_upper_limit(self.get_upper_limits()[0])
-        self._var1.set_upper_limit(self.get_upper_limits()[1])
-        self._var2.set_upper_limit(self.get_upper_limits()[2])
-    def get_upper_limits(self):
-        return self._upper_limits
-    def set_limit_ranges(self):
-        self._limit_ranges = [self._upper_limits[0] - self._lower_limits[0], self._upper_limits[1] - self._lower_limits[1], self._upper_limits[2] - self._lower_limits[2]]
-        self._var0.set_limit_range()
-        self._var1.set_limit_range()
-        self._var2.set_limit_range()
-    def get_limit_ranges(self):
-        return self._limit_ranges
-        
-
-class Unlimited_vars(Limited_vars):      
-    pass
+                
+    def update(self):
+        if self.get_steps_left()[1] > 0:
+            if self.get_steps_left()[0] > 1:
+                print "updating..."
+                curr_step = self.get_max_steps()-self.get_steps_left()[0]
+                var0_next = self.get_mapped_steps()[0][curr_step]
+                var1_next = self.get_mapped_steps()[1][curr_step]
+                var2_next = self.get_mapped_steps()[2][curr_step]
+                self.set_current([var0_next, var1_next, var2_next])
+                self.set_steps_left(self.get_steps_left()[0]-1, self.get_steps_left()[1])
+                
+            elif self.get_steps_left()[0] == 1:
+                self.set_steps_left(0, 0)
+                self.set_current(self.get_target())
+                self.set_old = [0, 0, 0]
+                
+    def print_variables(self):
+        print
+        print
+        print "Printing current variables:"
+        print "old: ", self.get_old()
+        print "current: ", self.get_current()
+        print "target: ", self.get_target()
+        print "max_steps: ", self.get_max_steps()
+        print "steps_left: ", self.get_steps_left()
+        print
+        print
 
     
 # This class handles all relevant information regarding
@@ -297,12 +251,7 @@ class Led(object):
     def __init__(self):
         self._strip_xyz = (0, 0, 0)
         self._xyz = (0, 0, 0)
-        self._current_hls = (0, 0, 0)
-        self._target_hls = (0, 0, 0)
-        self._old_hls = (0, 0, 0)
-        self._fade_steps_left = (0, 0)
-        self._mapped_fade_steps = []
-        self._max_fade_steps = 50
+        self._hls = Triplets(0.0, 1.0)
         
     # This part of the class has methods
     # that handle the start position of the strip
@@ -311,8 +260,7 @@ class Led(object):
         self._strip_xyz = strip_xyz
     def get_strip_xyz(self):
         return self._strip_xyz
-
-        
+       
     # This part of the class has methods
     # setting and getting the x,y,z coordinates of this LED.
     # For these methods to work properly, the above 'start position'
@@ -327,112 +275,34 @@ class Led(object):
     def get_xyz(self):
         return self._xyz 
 
+    def set_lower_limit(self, lower):
+        self._hls.set_lower_limit(lower)
+    def get_lower_limit(self):
+        return self._hls.get_lower_limit()
+        
+    def set_upper_limit(self, upper):
+        self._hls.set_upper_limit(upper)
+    def get_upper_limit(self):
+        return self._hls.get_upper_limit()
 
-    # This part of the class has methods
-    # setting and getting current HLS values for this LED.
-    def set_current_hls(self, curr_hls):
-        self._current_hls = [constrain_h(curr_hls[0]), constrain_ls(curr_hls[1]), constrain_ls(curr_hls[2])]
-    def get_current_hls(self):
-        return (self._current_hls)
+    def set_current(self, curr):
+        self._hls.set_current(curr)
+    def get_current(self):
+        return self._hls.get_current()
 
-    # This part of the class has methods
-    # setting and getting target HLS values for this LED.
-    def set_target_hls(self, targ_hls):
-        self._target_hls = [constrain_h(targ_hls[0]), constrain_ls(targ_hls[1]), constrain_ls(targ_hls[2])]
-        if self.get_target_hls() != self.get_current_hls():
-            self._fade_steps_left = (self._max_fade_steps, self._max_fade_steps)
-            self.calc_fade()
-    def get_target_hls(self):
-        return (self._target_hls)
+    def set_target(self, targ, step_type):
+        self._hls.set_target(targ, step_type)
+    def get_target(self):
+        return self._hls.get_target()
         
+    def set_max_steps(self, max):
+        self._hls.set_max_steps(max)
+    def get_max_steps(self):
+        return self._hls.get_max_steps()
+    def update(self):
+        self._hls.update()
 
-    def calc_fade(self):
-        targ_hls = self.get_target_hls()
-        curr_hls = self.get_current_hls()
-        self._old_hls = curr_hls
-        old_hls = self._old_hls
-        print
-        print "Color before fade calculation:"
-        print "targ_hls: ", targ_hls
-        print "curr_hls: ", curr_hls
-        print "_old_hls: ", self._old_hls
-        print
+ 
         
-        h_shift = self.calc_fade_value(old_hls[0], curr_hls[0], targ_hls[0], True)
-        l_shift = self.calc_fade_value(old_hls[1], curr_hls[1], targ_hls[1])
-        s_shift = self.calc_fade_value(old_hls[2], curr_hls[2], targ_hls[2])
-        hls_shift = [h_shift, l_shift, s_shift]
-        self._mapped_fade_steps = hls_shift
-        print
-        print "Mapped fade steps:"
-        print self._mapped_fade_steps[0]
-        print self._mapped_fade_steps[1]
-        print self._mapped_fade_steps[2]
-        print
-        
-    def calc_fade_value(self, old, curr, targ, is_h = False):
-        output_array = []
-        diff = targ-curr
-        if diff < 0.0:
-            sign = -1
-        elif diff > 0.0:
-            sign = 1
-        else:
-            sign = 0
-        
-        if sign == 0:
-            for i in range (self._max_fade_steps):
-                output_array.append(targ)
-        else:
-            # While fading, a sine wave is used to describe the speed of color change
-            # where the 'x-axis' represents the time from start to end of change
-            # and the 'y-axis' represents the speed at which it changes.
-            # The integral of this yields a negative cosine wave that describes the distance of color change
-            # where the 'x-axis' represents the time from start to end of change
-            # and the 'y-axis' represents the distance it has changed.
-            # For this purpose, I have used half waves (ranging from 0 to 2*pi).
-            # Using half sine wave ranging from 0 to 2*pi (period of 4*pi) to
-            # describe the velocity at which the color values
-            # change towards targat value.
-            # The integral of a half wave in that range
-            # shows that the amplitude of the wave is
-            # half the distance needed to travel.
-            
-            cos_amplitude = diff/2.0
-            #
-            for i in range (self._max_fade_steps):
-                output_array.append(old + cos_amplitude-cos_amplitude*math.cos(math.pi * i/float(self._max_fade_steps)))
-        return output_array
-                
-    def update_led(self):
-        if self._fade_steps_left[1] > 0:
-            if self._fade_steps_left[0] > 0:
-                print "updating led..."
-                curr_step = self._max_fade_steps-self._fade_steps_left[0]
-                h_next = self._mapped_fade_steps[0][curr_step]
-                l_next = self._mapped_fade_steps[1][curr_step]
-                s_next = self._mapped_fade_steps[2][curr_step]
-                print "update current_hls: ",[h_next, l_next, s_next]
-                self.set_current_hls([h_next, l_next, s_next])
-                self._fade_steps_left = [self._fade_steps_left[0]-1, self._fade_steps_left[1]]
-                
-            elif self._fade_steps_left[0] == 0:
-                self._fade_steps_left = (0, 0)
-                self.set_current_hls(self.get_target_hls())
-                self._old_hls = (0, 0, 0)
-                self._mapped_fade_steps = []
-                
-        
-    def print_led_variables(self):
-        print
-        print
-        print "Printing current led variables:"
-        print "_strip_xyz: ", self._strip_xyz
-        print "_xyz: ", self._xyz
-        print "_current_hls: ", self.get_current_hls()
-        print "_target_hls: ", self.get_target_hls()
-        print "_old_hls: ", self._old_hls
-        print "_fade_steps_left: ", self._fade_steps_left
-        print "_max_fade_steps: ", self._max_fade_steps
-        print
-        print
+    def print_variables(self):
+        self._hls.print_variables()
