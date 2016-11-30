@@ -69,9 +69,7 @@ def print_leds_info(led_array):
             print "Strip xyz: ", led_array[i].get_strip_xyz()
             print "Led   xyz: ", led_array[i].get_xyz()
             print "Curr  hls: ", led_array[i].get_current_hls()
-            print "Curr  rgb: ", led_array[i].get_current_rgb()
             print "Targ  hls: ", led_array[i].get_target_hls()
-            print "Targ  rgb: ", led_array[i].get_target_rgb()
             print
 
 # Sends the current RGB values of all the LEDs to the fadecandy
