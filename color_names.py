@@ -153,9 +153,9 @@ def yellowgreen(): return __yellowgreen
 # parameter: a tuple of three integers, valued 0 to 360, 0 to 100 and 0 to 100.
 # return: a tuple of three floating point numbers valued between 0.0 and 1.0.
 def hls360_to_hls1(h360, l100, s100):
-    h1 = h360 / 360.0
-    l1 = l100 / 100.0
-    s1 = s100 / 100.0
+    h1 = 1 - h360 / 360.0
+    l1 = l100 / 200.0
+    s1 = s100 / 50.0
     return (h1, l1, s1)
     
 # A long list of private variables containing tuples representing the HLS values of named colors.
