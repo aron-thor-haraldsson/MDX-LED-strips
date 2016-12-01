@@ -13,7 +13,7 @@ def update_leds(leds_array):
         if leds[q].update() == 0:
             
             leds[q].set_current(leds[q].get_target())
-            leds[q].set_target(leds.get_base_colour(), "linear")
+            leds[q].set_target(led.get_base_colour(), "linear")
             
 
 def prepare_wall_movement(direction, speed):
@@ -55,7 +55,7 @@ def perform_sweep(direction, speed, colour = color_names.red()):
         for m in range (len(wall.get_normal())):
             normal = wall.get_normal()[m]
             leds[normal].set_target(colour, "linear")
-        update_leds()
+        update_leds(leds)
         
         led.display_on_fadecandy(leds)
         time.sleep(0.1)
