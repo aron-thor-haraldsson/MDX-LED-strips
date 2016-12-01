@@ -20,6 +20,7 @@ _degree_per_light = (_degree_stop-_degree_start)/_number_of_led_per_strip
 _rad_start = _deg_to_rad(_degree_start)
 _rad_stop = _deg_to_rad(_degree_stop)
 _rad_per_light = _deg_to_rad(_degree_per_light)
+_base_colour = [0.0, 0.0, 0.0]
 
 
 
@@ -33,23 +34,19 @@ if host.startswith('localhost'):
 
 # This part of the class has methods
 # converting hls values (0.0 to 1.0 format)
-# to rgb values (0 to 255).   
+# to rgb values (0 to 255).
+
+def set_base_colour(colour, led_array):
+    _base_colour = colour
+    for q in range (len(led_array)):
+        led_array[q].set_current(_base_colour)
+def get_base_colour():
+    return _base_colour
+    
 def hls1_to_rgb255(hls1):
     rgb1 = colorsys.hls_to_rgb(hls1[0], hls1[1], hls1[2])
     rgb255 = int(rgb1[0] * 255.0), int(rgb1[1] * 255.0), int(rgb1[2] * 255.0)
     return rgb255
-    
-def constrain_h(h):
-    if h < 0.0:
-        while h < 0.0:
-            h = h + 1.0
-    return h
-def constrain_ls(ls):
-    if ls > 1.0:
-        ls = 1.0
-    elif ls < 0.0:
-        ls = 0.0
-    return ls
         
 def localize_leds(led_array, strip_number, strip_xyz):
     lower_limit = 60*(strip_number-1)
@@ -59,10 +56,11 @@ def localize_leds(led_array, strip_number, strip_xyz):
         led_array[i].calc_xyz(i-lower_limit)
 def print_leds_info(led_array):
         for i in range (len(led_array)):
+            print "Printing LED info:"
             print "Strip xyz: ", led_array[i].get_strip_xyz()
             print "Led   xyz: ", led_array[i].get_xyz()
-            print "Curr  hls: ", led_array[i].get_current_hls()
-            print "Targ  hls: ", led_array[i].get_target_hls()
+            print "Current  : ", led_array[i].get_current()
+            print "Target   : ", led_array[i].get_target()
             print
 
 # Sends the current RGB values of all the LEDs to the fadecandy
@@ -82,9 +80,9 @@ def numberfy(var):
 def numberfys(vars):
     return [numberfy(vars[0]), numberfy(vars[1]), numberfy(vars[2])]
 
-def calc_immediate_steps(old, curr, targ, max_steps, is_h = False):
+def calc_instant_steps(old, curr, targ, max_steps, is_h = False):
     output_array = []
-    for i in range (max_steps):
+    for j in range (max_steps):
         output_array.append(targ)
     return output_array
     
@@ -99,11 +97,11 @@ def calc_linear_steps(old, curr, targ, max_steps, is_h = False):
         sign = 0
     
     if sign == 0:
-        for i in range (max_steps):
+        for j in range (max_steps):
             output_array.append(targ)
     else:
-        for i in range (max_steps):
-            output_array.append(old + diff*i/float(max_steps))
+        for j in range (max_steps):
+            output_array.append(old + diff*j/float(max_steps))
     return output_array
     
     
@@ -118,7 +116,7 @@ def calc_cosine_steps(old, curr, targ, max_steps, is_h = False):
         sign = 0
     
     if sign == 0:
-        for i in range (max_steps):
+        for j in range (max_steps):
             output_array.append(targ)
     else:
         # A sine wave is used to describe the speed of change
@@ -137,8 +135,8 @@ def calc_cosine_steps(old, curr, targ, max_steps, is_h = False):
         
         cos_amplitude = diff/2.0
         #
-        for i in range (max_steps):
-            output_array.append(old + cos_amplitude-cos_amplitude*math.cos(math.pi * i/float(max_steps)))
+        for j in range (max_steps):
+            output_array.append(old + cos_amplitude-cos_amplitude*math.cos(math.pi * j/float(max_steps)))
     return output_array
                    
 
@@ -171,7 +169,6 @@ class Triplets(object):
 
     def set_target(self, targ, step_type):
         self._target = targ
-        print self.get_target()
         if not self.is_same(self.get_current(), self.get_target()):
             self.set_steps_left(self.get_max_steps(), self.get_max_steps())
             self.calc_steps(step_type)
@@ -206,6 +203,7 @@ class Triplets(object):
         targ = self.get_target()
         curr = self.get_current()
         old = self.get_old()
+        """
         print
         print "Values before calculation:"
         print "old: ", old
@@ -214,6 +212,7 @@ class Triplets(object):
         old = curr
         print "updated old: ", old
         print
+        """
         
         if step_type == "cosine":
             var0_shift = calc_cosine_steps(old[0], curr[0], targ[0], self.get_max_steps(), True)
@@ -227,32 +226,30 @@ class Triplets(object):
             var2_shift = calc_linear_steps(old[2], curr[2], targ[2], self.get_max_steps())
             vars_shift = [var0_shift, var1_shift, var2_shift]
             self.set_mapped_steps(vars_shift)
-        elif step_type == "immediate":
-            var0_shift = calc_immediate_steps(old[0], curr[0], targ[0], self.get_max_steps(), True)
-            var1_shift = calc_immediate_steps(old[1], curr[1], targ[1], self.get_max_steps())
-            var2_shift = calc_immediate_steps(old[2], curr[2], targ[2], self.get_max_steps())
+        elif step_type == "instant":
+            var0_shift = calc_instant_steps(old[0], curr[0], targ[0], self.get_max_steps(), True)
+            var1_shift = calc_instant_steps(old[1], curr[1], targ[1], self.get_max_steps())
+            var2_shift = calc_instant_steps(old[2], curr[2], targ[2], self.get_max_steps())
             vars_shift = [var0_shift, var1_shift, var2_shift]
             self.set_mapped_steps(vars_shift)
             self.set_steps_left(2, self.get_steps_left()[1])
-            
+        """  
         print
         print "Mapped steps:"
         print self.get_mapped_steps()[0]
         print self.get_mapped_steps()[1]
         print self.get_mapped_steps()[2]
         print
+        """
                 
     def update(self):
         if self.get_steps_left()[1] > 0:
             if self.get_steps_left()[0] > 1:
-                print "updating..."
+                #print "updating..."
                 curr_step = self.get_max_steps()-self.get_steps_left()[0]
                 var0_next = self.get_mapped_steps()[0][curr_step]
                 var1_next = self.get_mapped_steps()[1][curr_step]
                 var2_next = self.get_mapped_steps()[2][curr_step]
-                print var0_next
-                print var1_next
-                print var2_next
                 self.set_current([var0_next, var1_next, var2_next])
                 self.set_steps_left(self.get_steps_left()[0]-1, self.get_steps_left()[1])
                 
@@ -275,7 +272,7 @@ class Triplets(object):
 class Wall(Triplets):
 
     # Default instance values.
-    def __init__(self, xyz):
+    def __init__(self, xyz = [0, 0, 0]):
         x = numberfy(xyz[0])
         y = numberfy(xyz[1])
         z = numberfy(xyz[2])
@@ -288,16 +285,45 @@ class Wall(Triplets):
         self._mapped_steps = []
         self._max_steps = 50
         self._vector = [0, 0, 0]
+        self._proximity = 90000000
+        self._normal_array = []
+    
+    def set_proximity(self, proximity):
+        self._proximity = proximity
+    def get_proximity(self):
+        return self._proximity
         
-    def set_vector():
-        dx = self.get_target()[0]-self.get_current()[0]
-        dy = self.get_target()[1]-self.get_current()[1]
-        dz = self.get_target()[2]-self.get_current()[2]
+    def set_vector(self):
+        dx = self.get_target()[0]-self.get_old()[0]
+        dy = self.get_target()[1]-self.get_old()[1]
+        dz = self.get_target()[2]-self.get_old()[2]
         self._vector = [dx, dy, dz]
-    def get_vector():
+    def get_vector(self):
         return self._vector
-    def reset_vector():
+    def reset_vector(self):
         self._vector = [0, 0, 0]
+        
+    def set_normal(self, led_array):
+        
+        self._normal_array = []
+        for w in range (len(led_array)):
+            mult_x = (self.get_vector()[0]*(led_array[w].get_xyz()[0]-self.get_current()[0]))
+            mult_y = (self.get_vector()[1]*(led_array[w].get_xyz()[1]-self.get_current()[0]))
+            mult_z = (self.get_vector()[2]*(led_array[w].get_xyz()[2]-self.get_current()[0]))
+            value = (abs(mult_x + mult_y + mult_z))
+            value = int(value/ 10000)
+            if value < self.get_proximity():
+                self._normal_array.append(w)
+    def get_normal(self):
+        return self._normal_array
+    
+    # This method is an overwrite of the parent method
+    def set_target(self, targ, step_type):
+        self._target = targ
+        self.set_vector() #so that this line is included
+        if not self.is_same(self.get_current(), self.get_target()):
+            self.set_steps_left(self.get_max_steps(), self.get_max_steps())
+            self.calc_steps(step_type)    
     
 # This class handles all relevant information regarding
 # one single LED.
@@ -314,7 +340,7 @@ class Led(Triplets):
         self._target = [0.0, 0.0, 0.0]
         self._steps_left = [0, 0]
         self._mapped_steps = []
-        self._max_steps = 50
+        self._max_steps = 20
         
         
     # This part of the class has methods
@@ -338,3 +364,23 @@ class Led(Triplets):
         self._xyz(xyz)
     def get_xyz(self):
         return self._xyz
+
+    # This overrides the method from the parent class
+    def update(self):
+        if self.get_steps_left()[1] > 0:
+            if self.get_steps_left()[0] > 1:
+                #print "updating..."
+                curr_step = self.get_max_steps()-self.get_steps_left()[0]
+                var0_next = self.get_mapped_steps()[0][curr_step]
+                var1_next = self.get_mapped_steps()[1][curr_step]
+                var2_next = self.get_mapped_steps()[2][curr_step]
+                self.set_current([var0_next, var1_next, var2_next])
+                self.set_steps_left(self.get_steps_left()[0]-1, self.get_steps_left()[1])
+                return 1
+                
+            elif self.get_steps_left()[0] == 1:
+                self.set_steps_left(0, 0)
+                self.set_current(self.get_target())
+                self.set_old = [0, 0, 0]
+                return 0
+        return -1
