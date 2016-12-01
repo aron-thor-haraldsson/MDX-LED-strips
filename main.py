@@ -4,7 +4,7 @@ import time
 import opc
 import color_names
 import color_adjust
-import led_class as led
+import led_classes as led
 import os
 
 
