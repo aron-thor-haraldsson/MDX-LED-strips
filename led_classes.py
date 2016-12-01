@@ -24,8 +24,8 @@ _base_colour = [0.0, 0.0, 0.0]
 
 
 
-host = 'localhost:7890'
-#host = '192.168.2.1:7890'
+#host = 'localhost:7890'
+host = '192.168.2.1:7890'
 client = opc.Client(host)
 
 if host.startswith('localhost'):
